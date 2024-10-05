@@ -23,7 +23,7 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.post(route('login'), {
+    form.post(route('login.post'), {
         onFinish: () => form.reset('password'),
     });
 };
@@ -32,8 +32,9 @@ const submit = () => {
 <template>
 
         <div class="login-container">
+            <Head title="Login" />
             <div class="svg-section hidden lg:block">
-                <img src="@img/login.jpg" alt="Rentals Image" class="w-full h-full object-cover" />
+                <img src="@img/login.jpg" alt="Rentals Image" class="w-full h-full object-cover opacity-70" />
             </div>
 
 
@@ -122,19 +123,24 @@ const submit = () => {
 .login-container {
     display: flex;
     flex-direction: row;
+    background-color: #1051d5;
     min-height: 100vh;
 }
 
 /* SVG section on the right (hidden on mobile) */
 .svg-section {
     width: 50%;
-    background-color: #f3f4f6; /* Light gray background for SVG section */
+    background-color: #f3f4f6;
 }
 
 /* Login form section on the left */
 .form-section {
     width: 50%;
+    border-radius: 20px 0 0 20px;
+    background-color: rgb(128, 128, 207);
     padding: 2rem;
+    margin: auto;
+    height: 99vh;
     display: flex;
     justify-content: center;
     align-items: center;

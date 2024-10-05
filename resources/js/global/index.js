@@ -3,6 +3,6 @@
 import { defineAsyncComponent } from 'vue';
 
 export default function registerGlobalComponents(app) {
-    app.component('app-spinner', defineAsyncComponent(() => import('../Components/Spinner.vue')));
-    // app.component('AnotherComponent', defineAsyncComponent(() => import('./Components/AnotherComponent.vue')));
+    app.component('app-spinner', defineAsyncComponent(() => import('../Widgets/Spinner.vue')));
+    app.component('app-card', defineAsyncComponent(() => import('../Widgets/Card.vue')));
 }
