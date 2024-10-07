@@ -114,7 +114,7 @@ onMounted(() => {
               <i class="fas fa-dollar-sign text-green-500 text-3xl"></i>
               <div class="ml-4">
                 <h2 class="text-lg font-semibold">Revenue</h2>
-                <p class="text-gray-600">Total revenue: $50,000</p>
+                <p class="text-gray-600">Total revenue: KES: 50,000</p>
               </div>
             </div>
           </div>
@@ -166,73 +166,73 @@ onMounted(() => {
           <h2 class="text-lg font-semibold">Top Region Revenue</h2>
           <ul class="mt-4">
             <li class="flex justify-between items-center text-gray-600">
-              January: $1,200
+              January: KES: 1,200
               <span class="text-green-500">
                 <FontAwesomeIcon icon="arrow-up" />
               </span>
             </li>
             <li class="flex justify-between items-center text-gray-600">
-              February: $1,100
+              February: KES: 1,100
               <span class="text-gray-500">
                 <FontAwesomeIcon icon="arrow-down" />
               </span>
             </li>
             <li class="flex justify-between items-center text-gray-600">
-              March: $1,300
+              March: KES: 1,300
               <span class="text-green-500">
                 <FontAwesomeIcon icon="arrow-up" />
               </span>
             </li>
             <li class="flex justify-between items-center text-gray-600">
-              April: $1,400
+              April: KES: 1,400
               <span class="text-green-500">
                 <FontAwesomeIcon icon="arrow-up" />
               </span>
             </li>
             <li class="flex justify-between items-center text-gray-600">
-              May: $1,250
+              May: KES: 1,250
               <span class="text-gray-500">
                 <FontAwesomeIcon icon="arrow-down" />
               </span>
             </li>
             <li class="flex justify-between items-center text-gray-600">
-              June: $1,350
+              June: KES: 1,350
               <span class="text-green-500">
                 <FontAwesomeIcon icon="arrow-up" />
               </span>
             </li>
             <li class="flex justify-between items-center text-gray-600">
-              July: $1,500
+              July: KES: 1,500
               <span class="text-green-500">
                 <FontAwesomeIcon icon="arrow-up" />
               </span>
             </li>
             <li class="flex justify-between items-center text-gray-600">
-              August: $1,700
+              August: KES: 1,700
               <span class="text-green-500">
                 <FontAwesomeIcon icon="arrow-up" />
               </span>
             </li>
             <li class="flex justify-between items-center text-gray-600">
-              September: $1,600
+              September: KES: 1,600
               <span class="text-green-500">
                 <FontAwesomeIcon icon="arrow-up" />
               </span>
             </li>
             <li class="flex justify-between items-center text-gray-600">
-              October: $1,550
+              October: KES: 1,550
               <span class="text-green-500">
                 <FontAwesomeIcon icon="arrow-up" />
               </span>
             </li>
             <li class="flex justify-between items-center text-gray-600">
-              November: $1,450
+              November: KES: 1,450
               <span class="text-gray-500">
                 <FontAwesomeIcon icon="arrow-down" />
               </span>
             </li>
             <li class="flex justify-between items-center text-gray-600">
-              December: $1,300
+              December: KES: 1,300
               <span class="text-green-500">
                 <FontAwesomeIcon icon="arrow-up" />
               </span>
@@ -246,9 +246,9 @@ onMounted(() => {
         <div class="w-full lg:w-3/7 bg-white shadow-md rounded-lg p-6">
             <h2 class="text-lg font-semibold">Top 3 Customers</h2>
             <ul class="mt-4">
-            <li class="py-2">Customer A - $10,000</li>
-            <li class="py-2">Customer B - $7,500</li>
-            <li class="py-2">Customer C - $5,000</li>
+            <li class="py-2">Customer A - KES: 10,000</li>
+            <li class="py-2">Customer B - KES: 7,500</li>
+            <li class="py-2">Customer C - KES: 5,000</li>
             </ul>
         </div>
 
