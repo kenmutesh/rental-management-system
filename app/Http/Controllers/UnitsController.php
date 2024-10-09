@@ -37,15 +37,32 @@ class UnitsController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|string',
+            'property_id' => 'required|exists:properties,id',
+            'rentAmount' => 'required|numeric',
+            'notes' => 'nullable|string',
+        ]);
+
+        $unit = Units::create([
+            'name' => $request->name,
+            'property_id' => $request->property_id,
+            'rentAmount' => $request->rentAmount,
+            'notes' => $request->notes,
+        ]);
+
+        return response()->json(['data' => $unit], 201);
     }
+
 
     /**
      * Display the specified resource.
      */
-    public function show(Units $units)
+    public function show($property)
     {
-        //
+        $units = Units::where('property_id', $property)
+                ->get();
+        return UnitsResource::collection($units);
     }
 
     /**

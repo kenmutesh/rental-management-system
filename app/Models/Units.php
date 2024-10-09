@@ -9,6 +9,13 @@ class Units extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'name',
+        'property_id',
+        'rentAmount',
+        'notes',
+    ];
+
 
 
     public function property()
@@ -16,5 +23,5 @@ class Units extends Model
         return $this->belongsTo(Property::class);
     }
 
-    
+
 }

@@ -32,8 +32,9 @@ Route::middleware('auth')->group(function () {
     Route::put('properties/{property}', [PropertyController::class, 'update'])->name('properties.update');
     Route::delete('properties/{property}', [PropertyController::class, 'destroy'])->name('properties.destroy');
 
-    Route::get('units', [UnitsController::class, 'index'])->name('units,index');
-
+    Route::get('units', [UnitsController::class, 'index'])->name('units.index');
+    Route::post('units', [UnitsController::class, 'store'])->name('units.store');
+    Route::get('units/{property}', [UnitsController::class, 'show'])->name('units.store');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
