@@ -4,7 +4,8 @@ import axios from 'axios';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 
 const properties = ref([]);
-const selectedProperty = ref(null); // Holds the selected property's ID for viewing units
+const selectedProperty = ref(null);
+const selectedPropertyView = ref(null);
 const unitName = ref('');
 const rentAmount = ref('');
 const notes = ref('');
@@ -166,7 +167,7 @@ onMounted(() => {
                             id="notes"
                             placeholder="Additional Notes"
                             class="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            rows="3"
+                            rows="1"
                         ></textarea>
                     </div>
                 </div>
@@ -194,8 +195,8 @@ onMounted(() => {
             <div class="mb-4">
                 <label for="property_view" class="block">Select Property to View Units:</label>
                 <select
-                    v-model="selectedProperty"
-                    @change="fetchUnits(selectedProperty)"
+                    v-model="selectedPropertyView"
+                    @change="fetchUnits(selectedPropertyView)"
                     id="property_view"
                     class="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
@@ -208,48 +209,50 @@ onMounted(() => {
             </div>
 
             <!-- Units Table -->
+            <!-- Units Table -->
             <div v-if="!isTableLoading">
-                {{ units.length }}
                 <template v-if="units.length > 0">
-
-                    <table class="min-w-full bg-white">
-                        <thead class="bg-gray-100 border-b">
-                            <tr>
-                                <th class="py-2 text-left">Unit Name</th>
-                                <th class="py-2 text-left">Rent Amount</th>
-                                <th class="py-2 text-left">Notes</th>
-                                <th class="py-2 text-left">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="(unit, index) in units" :key="unit.id" class="border-b">
+                    <div class="table-container"> <!-- Add this container -->
+                        <table class="w-full bg-white table">
+                            <thead class="bg-gray-100 border-b">
+                                <tr>
+                                    <th class="py-2 text-left w-1/4">Unit Name</th>
+                                    <th class="py-2 text-left w-1/4">Rent Amount</th>
+                                    <th class="py-2 text-left w-1/4 truncate">Notes</th>
+                                    <th class="py-2 text-left w-1/4">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(unit, index) in units" :key="unit.id" class="border-b">
                                     <td class="py-2">{{ unit.name }}</td>
-                                <td class="py-2">{{ unit.rentAmount }}</td>
-                                <td class="py-2">{{ unit.notes }}</td>
-                                <td class="py-2">
-                                    <div class="flex gap-2">
-                                        <button
-                                            @click="editUnit(index)"
-                                            class="px-3 py-1 text-white bg-green-500 rounded hover:bg-green-600"
-                                        >
-                                            Edit
-                                        </button>
-                                        <button
-                                            @click="deleteUnit(unit.id)"
-                                            class="px-3 py-1 text-white bg-red-500 rounded hover:bg-red-600"
-                                        >
-                                            Delete
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                                    <td class="py-2">{{ unit.rentAmount }}</td>
+                                    <td class="py-2 w-2 truncate">{{ unit.notes }}</td>
+                                    <td class="py-2">
+                                        <div class="flex gap-2">
+                                            <button
+                                                @click="editUnit(index)"
+                                                class="px-3 py-1 text-white bg-green-500 rounded hover:bg-green-600"
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                @click="deleteUnit(unit.id)"
+                                                class="px-3 py-1 text-white bg-red-500 rounded hover:bg-red-600"
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </template>
                 <template v-else>
                     <p class="text-center py-4">No units found for the selected property.</p>
                 </template>
             </div>
+
 
             <!-- Loading State -->
             <div v-else>
@@ -258,3 +261,12 @@ onMounted(() => {
         </app-card>
     </AuthenticatedLayout>
 </template>
+<style scoped>
+.table-container {
+    overflow-x: auto; /* Allow horizontal scrolling */
+}
+
+.table {
+    min-width: 600px;
+}
+</style>
