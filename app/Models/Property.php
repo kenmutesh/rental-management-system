@@ -20,4 +20,11 @@ class Property extends Model
         'paymentUnstructions',
     ];
 
+
+
+    public function units()
+    {
+        return $this->hasMany(Units::class);
+    }
+
 }
