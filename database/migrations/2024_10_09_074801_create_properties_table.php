@@ -13,9 +13,15 @@ return new class extends Migration
     {
         Schema::create('properties', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->integer('units');
-            $table->string('location');
+            $table->string('propertyName');
+            $table->integer('totalUnits');
+            $table->string('city');
+            $table->float('waterRate')->nullable();
+            $table->string('electricityRate')->nullable();
+            $table->string('penaltyPercentage')->nullable();
+            $table->string('streetName')->nullable();
+            $table->text('paymentUnstructions')->nullable();
+            // $table->string('city');
             $table->timestamps();
         });
     }

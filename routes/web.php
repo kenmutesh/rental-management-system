@@ -26,8 +26,12 @@ Route::get('/dashboard', function () {
 
 Route::middleware('auth')->group(function () {
 
-    Route::get('properties', [PropertyController::class, 'index'])->name('properties');
+    Route::get('properties', [PropertyController::class, 'index'])->name('properties.index');
+    Route::post('properties', [PropertyController::class, 'store'])->name('properties.store');
+    Route::put('properties/{property}', [PropertyController::class, 'update'])->name('properties.update');
+    Route::delete('properties/{property}', [PropertyController::class, 'destroy'])->name('properties.destroy');
 
+    
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

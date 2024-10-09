@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\PropertyResource;
 use App\Models\Property;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -11,13 +12,17 @@ class PropertyController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $properties = Property::all();
 
-        return Inertia::render('Property/Index', [
-            'properties' => $properties
-        ]);
+        // Check if the request is AJAX
+        if (!$request->ajax()) {
+            return Inertia::render('Property/Index', [
+                'properties' => PropertyResource::collection($properties),
+            ]);
+        }
+        return PropertyResource::collection($properties);
     }
 
     /**
@@ -33,7 +38,30 @@ class PropertyController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'propertyName' => 'required|string|max:255',
+            'totalUnits' => 'required|integer|min:1',
+            'city' => 'required|string|max:255',
+            'waterRate' => 'nullable|numeric|min:0',
+            'electricityRate' => 'nullable|numeric|min:0',
+            'penaltyPercentage' => 'nullable|numeric|min:0|max:100',
+            'streetName' => 'nullable|string|max:255',
+            'paymentInstructions' => 'nullable|string|max:500',
+        ]);
+
+
+        Property::create([
+            'propertyName' => $request->propertyName,
+            'totalUnits' => $request->totalUnits,
+            'city' => $request->city,
+            'waterRate' => $request->waterRate,
+            'electricityRate' => $request->electricityRate,
+            'penaltyPercentage' => $request->penaltyPercentage,
+            'streetName' => $request->streetName,
+            'paymentInstructions' => $request->paymentInstructions
+        ]);
+
+        return response()->json(['message' => 'Property created successfully'], 201);
     }
 
     /**
@@ -57,7 +85,31 @@ class PropertyController extends Controller
      */
     public function update(Request $request, Property $property)
     {
-        //
+        $request->validate([
+            'propertyName' => 'required|string|max:255',
+            'totalUnits' => 'required|integer|min:1',
+            'city' => 'required|string|max:255',
+            'waterRate' => 'nullable|numeric|min:0',
+            'electricityRate' => 'nullable|numeric|min:0',
+            'penaltyPercentage' => 'nullable|numeric|min:0|max:100',
+            'streetName' => 'nullable|string|max:255',
+            'paymentInstructions' => 'nullable|string|max:500',
+        ]);
+
+
+        $property->update([
+            'propertyName' => $request->propertyName,
+            'totalUnits' => $request->totalUnits,
+            'city' => $request->city,
+            'waterRate' => $request->waterRate,
+            'electricityRate' => $request->electricityRate,
+            'penaltyPercentage' => $request->penaltyPercentage,
+            'streetName' => $request->streetName,
+            'paymentInstructions' => $request->paymentInstructions
+        ]);
+
+
+        return response()->json(['message' => 'Property updated successfully'], 200);
     }
 
     /**
@@ -65,6 +117,7 @@ class PropertyController extends Controller
      */
     public function destroy(Property $property)
     {
-        //
+        $property->delete();
+        return response()->json(['message' => 'Property deleted successfully'], 200);
     }
 }
