@@ -185,7 +185,7 @@ onMounted(fetchProperties);
                             min="0"
                             id="penalty_amount"
                             placeholder="Percentage Penalty"
-                            class="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
+                            class="w-full border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                         <div>
                             <label class="flex items-center">
@@ -213,7 +213,7 @@ onMounted(fetchProperties);
                             id="payment_instructions"
                             placeholder="Payment Instructions (optional)"
                             class="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            rows="3"
+                            rows="1"
                         ></textarea>
                     </div>
                 </div>
