@@ -187,7 +187,7 @@ onMounted(fetchProperties);
                             placeholder="Percentage Penalty"
                             class="w-full border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
-                        <div>
+                        <div> 
                             <label class="flex items-center">
                                 <input type="checkbox" v-model="automaticallyPenalize" class="mr-2" />
                                 Automatically penalize tenants upon late payment
