@@ -30,7 +30,7 @@ class PropertyController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('Property/Create');
     }
 
     /**
@@ -61,7 +61,9 @@ class PropertyController extends Controller
             'paymentInstructions' => $request->paymentInstructions
         ]);
 
-        return response()->json(['message' => 'Property created successfully'], 201);
+        return Inertia::render('Property/Index', [
+            'properties' => Property::all(),
+        ])->with('success', 'Property created successfully');
     }
 
     /**
@@ -77,7 +79,9 @@ class PropertyController extends Controller
      */
     public function edit(Property $property)
     {
-        //
+        return Inertia::render('Property/Create', [
+            'property' => $property,
+        ]);
     }
 
     /**
@@ -108,8 +112,9 @@ class PropertyController extends Controller
             'paymentInstructions' => $request->paymentInstructions
         ]);
 
-
-        return response()->json(['message' => 'Property updated successfully'], 200);
+        return Inertia::render('Property/Index', [
+            'properties' => Property::all(),
+        ])->with('success', 'Property created successfully');
     }
 
     /**

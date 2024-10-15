@@ -50,7 +50,6 @@ const fetchUnits = async (propertyId) => {
     }
 };
 
-// Submit the form to add or edit a unit
 const submitForm = async () => {
     if (!selectedProperty.value) {
         console.error('Property must be selected');
@@ -61,7 +60,7 @@ const submitForm = async () => {
     try {
         const payload = {
             name: unitName.value,
-            property_id: selectedProperty.value, // Ensure property_id is included in the payload
+            property_id: selectedProperty.value,
             rentAmount: rentAmount.value,
             notes: notes.value,
         };
@@ -69,12 +68,11 @@ const submitForm = async () => {
         if (isEditing.value) {
             await axios.put(`/units/${editingUnitId.value}`, payload);
         } else {
-            await axios.post(`/units`, payload); // Pass property_id in the payload
+            await axios.post(`/units`, payload);
         }
 
-        // Reset form fields and fetch units for the selected property
         resetForm();
-        fetchUnits(selectedProperty.value); // Fetch units for the selected property
+        fetchUnits(selectedProperty.value);
     } catch (error) {
         console.error('Error submitting form:', error);
     } finally {
@@ -82,7 +80,7 @@ const submitForm = async () => {
     }
 };
 
-// Reset form fields
+
 const resetForm = () => {
     unitName.value = '';
     rentAmount.value = '';
@@ -91,7 +89,7 @@ const resetForm = () => {
     editingUnitId.value = null;
 };
 
-// Edit a unit
+
 const editUnit = (unit) => {
     unitName.value = unit.name;
     rentAmount.value = unit.rentAmount;
@@ -101,7 +99,6 @@ const editUnit = (unit) => {
     selectedProperty.value = unit.property_id; // Set property when editing a unit
 };
 
-// Delete a unit
 const deleteUnit = async (unitId) => {
     try {
         await axios.delete(`/units/${unitId}`);
@@ -189,9 +186,7 @@ onMounted(() => {
             </form>
         </app-card>
 
-        <!-- Second Card: For Viewing Units -->
         <app-card title="View Units">
-            <!-- Property Selection Menu -->
             <div class="mb-4">
                 <label for="property_view" class="block">Select Property to View Units:</label>
                 <select
@@ -208,8 +203,6 @@ onMounted(() => {
                 </select>
             </div>
 
-            <!-- Units Table -->
-            <!-- Units Table -->
             <div v-if="!isTableLoading">
                 <template v-if="units.length > 0">
                     <div class="table-container"> <!-- Add this container -->
@@ -263,7 +256,8 @@ onMounted(() => {
 </template>
 <style scoped>
 .table-container {
-    overflow-x: auto; /* Allow horizontal scrolling */
+    overflow-x: auto;
+    padding: 5px;
 }
 
 .table {
