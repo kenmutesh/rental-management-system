@@ -1,32 +1,36 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import { SearchCircleIcon, UserCircleIcon, ClipboardCopyIcon, PlusIcon, OfficeBuildingIcon } from '@heroicons/vue/outline';
 
-const properties = ref([
-    { id: 1, name: "Property 1", units: 10, vacant: 2 },
-    { id: 2, name: "Property 2", units: 15, vacant: 3 },
-    { id: 3, name: "Property 3", units: 5, vacant: 0 },
-]);
+// Fetching properties from the Inertia page props
+const { properties } = usePage().props;
 
-const totalProperties = ref(properties.value.length);
-const totalUnits = ref(properties.value.reduce((sum, p) => sum + p.units, 0));
-const totalVacancies = ref(properties.value.reduce((sum, p) => sum + p.vacant, 0));
+// State for managing totals and filtered properties
+const totalProperties = ref(properties.length);
+const totalUnits = ref(properties.reduce((sum, p) => sum + p.totalUnits, 0)); // Changed to totalUnits
+const totalVacancies = ref(properties.reduce((sum, p) => sum + p.vacant, 0)); // Ensure you have the correct field for vacancies
 
+// Search functionality
 const searchQuery = ref('');
 const filteredProperties = computed(() => {
-    return properties.value.filter(property =>
-        property.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+    return properties.filter(property =>
+        property.propertyName.toLowerCase().includes(searchQuery.value.toLowerCase()) // Changed to propertyName
     );
 });
 
+// Delete property function
 const deleteProperty = (id) => {
-    properties.value = properties.value.filter(p => p.id !== id);
-    totalProperties.value = properties.value.length;
-    totalUnits.value = properties.value.reduce((sum, p) => sum + p.units, 0);
-    totalVacancies.value = properties.value.reduce((sum, p) => sum + p.vacant, 0);
+    Inertia.delete(route('properties.destroy', id), {
+        onSuccess: () => {
+            totalProperties.value = properties.length;
+            totalUnits.value = properties.reduce((sum, p) => sum + p.totalUnits, 0); // Changed to totalUnits
+            totalVacancies.value = properties.reduce((sum, p) => sum + p.vacant, 0); // Ensure you have the correct field for vacancies
+        }
+    });
 };
 
+// Redirect to the create and add unit routes
 const redirectToCreateProperty = () => {
     Inertia.get(route('properties.create'));
 };
@@ -34,6 +38,7 @@ const redirectToCreateProperty = () => {
 const redirectToAddUnit = () => {
     Inertia.get(route('units.create'));
 };
+
 </script>
 
 <template>
@@ -49,9 +54,9 @@ const redirectToAddUnit = () => {
                 Create Property
             </Link>
             <Link
-                 href="/units/create"
-                 class="flex items-center bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600"
-                 >
+                href="/units/create"
+                class="flex items-center bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600"
+            >
                 <PlusIcon class="w-5 h-5 mr-2" />
                 Add Unit
             </Link>
@@ -84,7 +89,7 @@ const redirectToAddUnit = () => {
 
         <!-- Search -->
         <div class="flex items-center mb-4">
-        <SearchCircleIcon class="w-5 h-5 text-gray-500 mr-2" />
+            <SearchCircleIcon class="w-5 h-5 text-gray-500 mr-2" />
             <input
                 v-model="searchQuery"
                 type="text"
@@ -100,7 +105,7 @@ const redirectToAddUnit = () => {
                     <tr class="bg-gray-100">
                         <th class="py-3 px-6 text-left text-sm font-medium text-gray-600">#</th>
                         <th class="py-3 px-6 text-left text-sm font-medium text-gray-600">Property Name</th>
-                        <th class="py-3 px-6 text-left text-sm font-medium text-gray-600">Units</th>
+                        <th class="py-3 px-6 text-left text-sm font-medium text-gray-600">Total Units</th>
                         <th class="py-3 px-6 text-left text-sm font-medium text-gray-600">Vacancies</th>
                         <th class="py-3 px-6 text-left text-sm font-medium text-gray-600">Actions</th>
                     </tr>
@@ -108,12 +113,17 @@ const redirectToAddUnit = () => {
                 <tbody>
                     <tr v-for="(property, index) in filteredProperties" :key="property.id" class="border-t">
                         <td class="py-4 px-6 text-sm text-gray-700">{{ index + 1 }}</td>
-                        <td class="py-4 px-6 text-sm text-gray-700">{{ property.name }}</td>
-                        <td class="py-4 px-6 text-sm text-gray-700">{{ property.units }}</td>
-                        <td class="py-4 px-6 text-sm text-gray-700">{{ property.vacant }}</td>
+                        <td class="py-4 px-6 text-sm text-gray-700">{{ property.propertyName }}</td>
+                        <td class="py-4 px-6 text-sm text-gray-700">{{ property.totalUnits }}</td> <!-- Changed to totalUnits -->
+                        <td class="py-4 px-6 text-sm text-gray-700">{{ property.vacant }}</td> <!-- Ensure this field is correct -->
                         <td class="py-4 px-6">
-                            <button class="text-blue-500 hover:text-blue-700 font-semibold mr-4">Edit</button>
-                            <button class="text-red-500 hover:text-red-700 font-semibold" @click="deleteProperty(property.id)">Delete</button>
+                            <Link
+                                :href="`/properties/edit/${property.id}`"
+                                class="text-blue-500 hover:text-blue-700 font-semibold mr-4"
+                            >
+                                Edit
+                            </Link>
+                        <button class="text-red-500 hover:text-red-700 font-semibold" @click="deleteProperty(property.id)">Delete</button>
                         </td>
                     </tr>
                 </tbody>

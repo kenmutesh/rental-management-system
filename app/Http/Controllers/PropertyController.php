@@ -12,17 +12,12 @@ class PropertyController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index()
     {
-        $properties = Property::all();
-
-        // Check if the request is AJAX
-        if (!$request->ajax()) {
-            return Inertia::render('Property/Index', [
-                'properties' => PropertyResource::collection($properties),
-            ]);
-        }
-        return PropertyResource::collection($properties);
+        $properties = Property::all(); // Fetch all properties
+        return Inertia::render('Property/Index', [
+            'properties' => $properties,
+        ]);
     }
 
     /**
@@ -61,7 +56,7 @@ class PropertyController extends Controller
             'paymentInstructions' => $request->paymentInstructions
         ]);
 
-        return Inertia::render('Property/Index', [
+        return to_route('properties.index', [
             'properties' => Property::all(),
         ])->with('success', 'Property created successfully');
     }
@@ -112,7 +107,7 @@ class PropertyController extends Controller
             'paymentInstructions' => $request->paymentInstructions
         ]);
 
-        return Inertia::render('Property/Index', [
+        return to_route('properties.index', [
             'properties' => Property::all(),
         ])->with('success', 'Property created successfully');
     }
