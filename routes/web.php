@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PropertyController;
+use App\Http\Controllers\TenantsController;
 use App\Http\Controllers\UnitsController;
 use App\Http\Controllers\UtilitiesController;
 use Illuminate\Foundation\Application;
@@ -39,6 +40,10 @@ Route::middleware('auth')->group(function () {
     Route::get('units/edit/{unit}', [UnitsController::class, 'edit'])->name('units.edit');
     Route::post('units', [UnitsController::class, 'store'])->name('units.store');
     Route::get('units/{property}', [UnitsController::class, 'show'])->name('units.store');
+
+    Route::resource('utilities', UtilitiesController::class);
+
+    Route::get('tenants', [TenantsController::class, 'index'])->name('tenants.index');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
