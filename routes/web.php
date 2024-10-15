@@ -34,8 +34,9 @@ Route::middleware('auth')->group(function () {
     Route::put('properties/{property}', [PropertyController::class, 'update'])->name('properties.update');
     Route::delete('properties/{property}', [PropertyController::class, 'destroy'])->name('properties.destroy');
 
-    Route::get('/units/add', [UnitsController::class, 'create'])->name('units.create');
     Route::get('units', [UnitsController::class, 'index'])->name('units.index');
+    Route::get('/units/create', [UnitsController::class, 'create'])->name('units.create');
+    Route::get('units/edit/{unit}', [UnitsController::class, 'edit'])->name('units.edit');
     Route::post('units', [UnitsController::class, 'store'])->name('units.store');
     Route::get('units/{property}', [UnitsController::class, 'show'])->name('units.store');
 
