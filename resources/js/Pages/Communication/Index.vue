@@ -1,6 +1,6 @@
 <script setup>
 import { Head, usePage } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/outline'; // Pagination Icons
 import { ChatAlt2Icon, DatabaseIcon } from '@heroicons/vue/outline'; // SMS Balance and Sent Messages Icons
 
@@ -14,13 +14,38 @@ const messages = ref([
     { id: 5, recipient: "Sam Wilson", message: "See you soon!", date: "2024-01-06" }
 ]);
 
+const filteredMessages = ref([...messages.value]);
+
+const fromDate = ref('');
+const toDate = ref('');
+
 const currentPage = ref(1);
 const perPage = ref(5);
-const totalMessages = ref(50);
+const totalMessages = ref(messages.value.length);
 const totalPages = computed(() => Math.ceil(totalMessages.value / perPage.value));
 
 function goToPage(page) {
     currentPage.value = page;
+}
+
+watch([fromDate, toDate], () => {
+    filterMessages();
+});
+
+function filterMessages() {
+    if (!fromDate.value && !toDate.value) {
+        filteredMessages.value = messages.value;
+    } else {
+        filteredMessages.value = messages.value.filter((message) => {
+            const messageDate = new Date(message.date);
+            const from = fromDate.value ? new Date(fromDate.value) : null;
+            const to = toDate.value ? new Date(toDate.value) : null;
+
+            return (!from || messageDate >= from) && (!to || messageDate <= to);
+        });
+    }
+    totalMessages.value = filteredMessages.value.length;
+    goToPage(1); // Reset to the first page when filters are applied
 }
 </script>
 
@@ -48,31 +73,57 @@ function goToPage(page) {
                     </div>
                 </div>
             </div>
+             <div class="flex justify-end mb-6">
+                <a href="/communication/create" class="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M3 8l7.293-7.293a1 1 0 011.414 0L19 8h-5a1 1 0 000 2h6a1 1 0 001-1V3a1 1 0 00-1-1h-6a1 1 0 000 2h4.586L11 1.414 4.707 7.707A1 1 0 003 8v4a1 1 0 001 1h2a1 1 0 000-2H4V8z" />
+                    </svg>
+                    Send Message
+                </a>
+            </div>
 
-            <!-- Sent Messages Table -->
-            <div class="bg-white shadow overflow-hidden rounded-lg">
-                <table class="min-w-full">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Recipient
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Message
-                            </th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Date Sent
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <tr v-for="message in messages" :key="message.id">
-                            <td class="px-6 py-4 whitespace-nowrap">{{ message.recipient }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ message.message }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ message.date }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <!-- Grid Layout for Filter and Table -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Filter Section (Left Column) -->
+                <div class="bg-white shadow rounded-lg p-6 lg:col-span-1">
+                    <h3 class="text-lg font-semibold mb-4">Filter by Date</h3>
+                    <div class="grid grid-cols-1 gap-6">
+                        <div>
+                            <label for="fromDate" class="block text-sm font-medium text-gray-700">From:</label>
+                            <input type="date" id="fromDate" v-model="fromDate" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm">
+                        </div>
+                        <div>
+                            <label for="toDate" class="block text-sm font-medium text-gray-700">To:</label>
+                            <input type="date" id="toDate" v-model="toDate" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sent Messages Table (Right Column) -->
+                <div class="bg-white shadow overflow-hidden rounded-lg lg:col-span-2">
+                    <table class="min-w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Recipient
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Message
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Date Sent
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr v-for="message in filteredMessages" :key="message.id">
+                                <td class="px-6 py-4 whitespace-nowrap">{{ message.recipient }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">{{ message.message }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">{{ message.date }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- Pagination Controls -->
