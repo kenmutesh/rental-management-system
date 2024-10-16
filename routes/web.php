@@ -44,6 +44,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('utilities', UtilitiesController::class);
 
     Route::get('tenants', [TenantsController::class, 'index'])->name('tenants.index');
+    Route::get('tenants/create', [TenantsController::class, 'create'])->name('tenants.create');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

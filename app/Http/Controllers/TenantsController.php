@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Property;
 use App\Models\Tenants;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -14,7 +15,7 @@ class TenantsController extends Controller
     public function index()
     {
         $tenants = Tenants::all();
-        
+
         return Inertia::render('Tenants/Index', [
             'tenants' => $tenants
         ]);
@@ -25,7 +26,12 @@ class TenantsController extends Controller
      */
     public function create()
     {
-        //
+        $properties = Property::with('units')
+                    ->get();
+
+        return Inertia::render('Tenants/Create', [
+            'properties' => $properties
+        ]);
     }
 
     /**
