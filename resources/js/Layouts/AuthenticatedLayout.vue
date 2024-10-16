@@ -1,27 +1,18 @@
 <script setup>
 import { ref } from 'vue';
+import { router } from '@inertiajs/vue3';
 
+
+const logout = () => {
+    router.post('/logout'); // POST request to logout endpoint
+};
 // Reactive state for sidebar and navigation dropdowns
 const isSidebarOpen = ref(false);
 const showingChildren = ref(null); // To manage parent-child toggling
-const showingSubChildren = ref(null); // To manage sub-child toggling
 
 // Function to toggle parent items
 const toggleChildren = (index) => {
-    if (showingChildren.value === index) {
-        showingChildren.value = null; // Close if already open
-    } else {
-        showingChildren.value = index; // Open the clicked one
-    }
-};
-
-// Function to toggle sub-children
-const toggleSubChildren = (index) => {
-    if (showingSubChildren.value === index) {
-        showingSubChildren.value = null;
-    } else {
-        showingSubChildren.value = index;
-    }
+    showingChildren.value = showingChildren.value === index ? null : index; // Toggle logic
 };
 </script>
 
@@ -33,80 +24,53 @@ const toggleSubChildren = (index) => {
                 'translate-x-0': isSidebarOpen,
                 '-translate-x-full': !isSidebarOpen
             }"
-            class="fixed inset-y-0 left-0 w-64 bg-white shadow-md transform transition-transform duration-300 ease-in-out z-50 sm:relative sm:translate-x-0"
+            class="fixed inset-y-0 left-0 w-64 bg-blue-500 shadow-md transform transition-transform duration-300 ease-in-out z-50 sm:relative sm:translate-x-0"
         >
-            <div class="p-4">
+            <div class="p-2"> <!-- Reduced padding for a more compact look -->
                 <!-- Logo -->
                 <a href="/" class="block mb-6">
-                    <img src="/logo.png" alt="Logo" class="h-12 w-auto text-gray-800" />
+                    <img src="/logo.png" alt="Logo" class="h-12 w-auto text-white" />
                 </a>
 
                 <!-- Navigation Links -->
                 <nav class="flex flex-col space-y-2">
-                    <!-- Dashboard -->
-                    <a href="/dashboard" class="block py-4 px-6 text-gray-600 hover:text-gray-900">Dashboard</a>
-
-                    <!-- Financials -->
+                    <a href="/dashboard" class="block py-2 px-4 text-white hover:bg-blue-600 rounded">Dashboard</a>
                     <div>
-                        <button @click="toggleChildren(1)" class="flex justify-between w-full py-4 px-6 text-left">
+                        <button @click="toggleChildren(1)" class="flex justify-between w-full py-2 px-4 text-left text-white hover:bg-blue-600 rounded">
                             <span>Financials</span>
-                            <svg :class="{ 'rotate-180': showingChildren === 1 }" class="w-4 h-4 transform transition-transform duration-300">
-                                <path d="M19 9l-7 7-7-7"></path>
-                            </svg>
+                            <i :class="showingChildren === 1 ? 'fa fa-chevron-up' : 'fa fa-chevron-down'"></i>
                         </button>
-                        <div v-if="showingChildren === 1" class="pl-8 transition-all duration-300">
-                            <a href="/invoices" class="block py-2 text-gray-600 hover:text-gray-900">Invoices</a>
-                            <a href="/payments" class="block py-2 text-gray-600 hover:text-gray-900">Payments</a>
-                            <a href="/expenses" class="block py-2 text-gray-600 hover:text-gray-900">Expenses</a>
+                        <div v-if="showingChildren === 1" class="pl-10 transition-all duration-300">
+                            <a href="/invoices" class="block py-2 text-white hover:bg-blue-600 rounded">Invoices</a>
+                            <a href="/payments" class="block py-2 text-white hover:bg-blue-600 rounded">Payments</a>
+                            <a href="/expenses" class="block py-2 text-white hover:bg-blue-600 rounded">Expenses</a>
                         </div>
                     </div>
-
-                    <!-- Tenants -->
-                    <a href="/tenants" class="block py-4 px-6 text-gray-600 hover:text-gray-900">Tenants</a>
-
-                    <!-- Property/Unit -->
+                    <a href="/tenants" class="block py-2 px-4 text-white hover:bg-blue-600 rounded">Tenants</a>
                     <div>
-                        <button @click="toggleChildren(2)" class="flex justify-between w-full py-4 px-6 text-left">
+                        <button @click="toggleChildren(2)" class="flex justify-between w-full py-2 px-4 text-left text-white hover:bg-blue-600 rounded">
                             <span>Property/Unit</span>
-                            <svg :class="{ 'rotate-180': showingChildren === 2 }" class="w-4 h-4 transform transition-transform duration-300">
-                                <path d="M19 9l-7 7-7-7"></path>
-                            </svg>
+                            <i :class="showingChildren === 2 ? 'fa fa-chevron-up' : 'fa fa-chevron-down'"></i>
                         </button>
-                        <div v-if="showingChildren === 2" class="pl-8 transition-all duration-300">
-                            <a href="/properties" class="block py-2 text-gray-600 hover:text-gray-900">Properties</a>
-                            <a href="/units" class="block py-2 text-gray-600 hover:text-gray-900">Units</a>
-                            <a href="/utilities" class="block py-2 text-gray-600 hover:text-gray-900">Utilities</a>
-                            <a href="/maintenance" class="block py-2 text-gray-600 hover:text-gray-900">Maintenance</a>
+                        <div v-if="showingChildren === 2" class="pl-10 transition-all duration-300">
+                            <a href="/properties" class="block py-2 text-white hover:bg-blue-600 rounded">Properties</a>
+                            <a href="/units" class="block py-2 text-white hover:bg-blue-600 rounded">Units</a>
+                            <a href="/utilities" class="block py-2 text-white hover:bg-blue-600 rounded">Utilities</a>
                         </div>
                     </div>
-
-                    <!-- Reports -->
-                    <a href="/reports" class="block py-4 px-6 text-gray-600 hover:text-gray-900">Reports</a>
-
-                    <!-- Communication -->
-                    <a href="/communication" class="block py-4 px-6 text-gray-600 hover:text-gray-900">Communication</a>
-
-                    <!-- Settings -->
+                    <a href="/reports" class="block py-2 px-4 text-white hover:bg-blue-600 rounded">Reports</a>
+                    <a href="/communication" class="block py-2 px-4 text-white hover:bg-blue-600 rounded">Communication</a>
                     <div>
-                        <button @click="toggleChildren(3)" class="flex justify-between w-full py-4 px-6 text-left">
+                        <button @click="toggleChildren(3)" class="flex justify-between w-full py-2 px-4 text-left text-white hover:bg-blue-600 rounded">
                             <span>Settings</span>
-                            <svg :class="{ 'rotate-180': showingChildren === 3 }" class="w-4 h-4 transform transition-transform duration-300">
-                                <path d="M19 9l-7 7-7-7"></path>
-                            </svg>
+                            <i :class="showingChildren === 3 ? 'fa fa-chevron-up' : 'fa fa-chevron-down'"></i>
                         </button>
-                        <div v-if="showingChildren === 3" class="pl-8 transition-all duration-300">
-                            <a href="/general" class="block py-2 text-gray-600 hover:text-gray-900">General</a>
-                            <a href="/backup" class="block py-2 text-gray-600 hover:text-gray-900">Backup</a>
-                            <a href="/alerts" class="block py-2 text-gray-600 hover:text-gray-900">Alerts</a>
-                            <a href="/account-info" class="block py-2 text-gray-600 hover:text-gray-900">Account Info</a>
-                            <a href="/message-template" class="block py-2 text-gray-600 hover:text-gray-900">Message Template</a>
-                            <a href="/billing" class="block py-2 text-gray-600 hover:text-gray-900">Billing</a>
-                            <a href="/audit-trail" class="block py-2 text-gray-600 hover:text-gray-900">Audit Trail</a>
+                        <div v-if="showingChildren === 3" class="pl-10 transition-all duration-300">
+                            <a href="/general" class="block py-2 text-white hover:bg-blue-600 rounded">General</a>
+                            <a href="/backup" class="block py-2 text-white hover:bg-blue-600 rounded">Backup</a>
                         </div>
                     </div>
-
-                    <!-- Log Out -->
-                    <a href="/logout" class="block py-4 px-6 text-gray-600 hover:text-gray-900">Log Out</a>
+                    <a @click.prevent="logout" class="block py-2 px-4 text-white hover:bg-blue-600 rounded">Log Out</a>
                 </nav>
             </div>
         </aside>
@@ -120,7 +84,7 @@ const toggleSubChildren = (index) => {
 
         <!-- Main Content -->
         <div class="flex-1 flex flex-col">
-            <nav class="border-b border-gray-200 bg-white">
+            <nav class="border-b border-gray-200 bg-white sticky top-0 z-10"> <!-- Sticky top -->
                 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div class="flex h-16 justify-between items-center">
                         <div class="flex">
@@ -194,5 +158,10 @@ const toggleSubChildren = (index) => {
 }
 .rotate-180 {
     transform: rotate(180deg);
+}
+.sticky {
+    position: sticky;
+    top: 0;
+    z-index: 10; /* Ensures the navbar stays above content */
 }
 </style>

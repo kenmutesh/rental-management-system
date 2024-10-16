@@ -11,7 +11,7 @@ const form = useForm({
     phone: '',
     address: '',
     leaseStartDate: '',
-    leaseEndDate: '',
+    accountNumber: '',
     rentAmount: '',
     paymentDueDate: '',
     notes: '',
@@ -170,52 +170,21 @@ const submitForm = () => {
                             <span v-if="form.errors.leaseStartDate" class="text-red-500 text-sm">{{ form.errors.leaseStartDate }}</span>
                         </div>
 
-                        <!-- Lease End Date -->
-                        <div>
-                            <label for="leaseEndDate" class="block text-sm font-medium text-gray-700">
-                                Lease End Date <span class="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="date"
-                                id="leaseEndDate"
-                                v-model="form.leaseEndDate"
-                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
-                                required
-                            />
-                            <span v-if="form.errors.leaseEndDate" class="text-red-500 text-sm">{{ form.errors.leaseEndDate }}</span>
-                        </div>
-
-                        <!-- Rent Amount -->
-                        <div>
-                            <label for="rentAmount" class="block text-sm font-medium text-gray-700">
-                                Rent Amount <span class="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="number"
-                                id="rentAmount"
-                                v-model="form.rentAmount"
-                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
-                                required
-                                min="0"
-                                step="0.01"
-                            />
-                            <span v-if="form.errors.rentAmount" class="text-red-500 text-sm">{{ form.errors.rentAmount }}</span>
-                        </div>
 
                         <!-- Payment Due Date -->
                         <div>
-                            <label for="paymentDueDate" class="block text-sm font-medium text-gray-700">
-                                Payment Due Date <span class="text-gray-500">(optional)</span>
+                            <label for="account_number" class="block text-sm font-medium text-gray-700">
+                                Account Number <span class="text-gray-500">(optional)</span>
                             </label>
                             <input
-                                type="number"
-                                id="paymentDueDate"
-                                v-model="form.paymentDueDate"
+                                type="text"
+                                id="account_number"
+                                v-model="form.accountNumber"
                                 class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
                                 min="1"
                                 max="31"
                             />
-                            <span v-if="form.errors.paymentDueDate" class="text-red-500 text-sm">{{ form.errors.paymentDueDate }}</span>
+                            <span v-if="form.errors.accountNumber" class="text-red-500 text-sm">{{ form.errors.accountNumber }}</span>
                         </div>
                     </div>
 
