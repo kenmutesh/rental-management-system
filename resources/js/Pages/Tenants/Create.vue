@@ -3,7 +3,6 @@ import { ref, watch } from 'vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { PlusIcon } from '@heroicons/vue/outline';
 
-// Form Data
 const form = useForm({
     firstName: '',
     lastName: '',
@@ -15,28 +14,25 @@ const form = useForm({
     rentAmount: '',
     paymentDueDate: '',
     notes: '',
-    property_id: '', // For property selection
-    unit_id: '', // For unit selection
+    property_id: '',
+    unit_id: '',
 });
 
-// Props passed from server-side (properties)
+
 const props = defineProps(['properties']);
 
-// Units for the selected property
 const units = ref([]);
 
-// Watch the selected property and filter units accordingly
 watch(() => form.property_id, (newVal) => {
     if (newVal) {
         const selectedProperty = props.properties.find(p => p.id === newVal);
         units.value = selectedProperty ? selectedProperty.units : [];
-        form.unit_id = ''; // Reset the unit selection when the property changes
+        form.unit_id = '';
     } else {
         units.value = [];
     }
 });
 
-// Function to handle form submission
 const submitForm = () => {
     form.post('/tenants', {
         onFinish: () => {
@@ -53,10 +49,8 @@ const submitForm = () => {
             <div class="bg-white shadow-lg rounded-lg w-full max-w-3xl" style="padding: 2rem;">
                 <h1 class="text-2xl font-semibold mb-6 text-center">Create Tenant</h1>
 
-                <!-- Tenant Form -->
                 <form @submit.prevent="submitForm" class="space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- First Name -->
                         <div>
                             <label for="firstName" class="block text-sm font-medium text-gray-700">
                                 First Name <span class="text-red-500">*</span>
@@ -71,7 +65,6 @@ const submitForm = () => {
                             <span v-if="form.errors.firstName" class="text-red-500 text-sm">{{ form.errors.firstName }}</span>
                         </div>
 
-                        <!-- Last Name -->
                         <div>
                             <label for="lastName" class="block text-sm font-medium text-gray-700">
                                 Last Name <span class="text-red-500">*</span>
@@ -86,7 +79,6 @@ const submitForm = () => {
                             <span v-if="form.errors.lastName" class="text-red-500 text-sm">{{ form.errors.lastName }}</span>
                         </div>
 
-                        <!-- Email -->
                         <div>
                             <label for="email" class="block text-sm font-medium text-gray-700">
                                 Email <span class="text-red-500">*</span>
@@ -101,7 +93,6 @@ const submitForm = () => {
                             <span v-if="form.errors.email" class="text-red-500 text-sm">{{ form.errors.email }}</span>
                         </div>
 
-                        <!-- Phone -->
                         <div>
                             <label for="phone" class="block text-sm font-medium text-gray-700">
                                 Phone <span class="text-red-500">*</span>
@@ -116,7 +107,6 @@ const submitForm = () => {
                             <span v-if="form.errors.phone" class="text-red-500 text-sm">{{ form.errors.phone }}</span>
                         </div>
 
-                        <!-- Property Selection -->
                         <div>
                             <label for="property" class="block text-sm font-medium text-gray-700">
                                 Property <span class="text-red-500">*</span>
@@ -135,7 +125,6 @@ const submitForm = () => {
                             <span v-if="form.errors.property_id" class="text-red-500 text-sm">{{ form.errors.property_id }}</span>
                         </div>
 
-                        <!-- Unit Selection -->
                         <div>
                             <label for="unit" class="block text-sm font-medium text-gray-700">
                                 Unit <span class="text-red-500">*</span>
@@ -155,7 +144,6 @@ const submitForm = () => {
                             <span v-if="form.errors.unit_id" class="text-red-500 text-sm">{{ form.errors.unit_id }}</span>
                         </div>
 
-                        <!-- Lease Start Date -->
                         <div>
                             <label for="leaseStartDate" class="block text-sm font-medium text-gray-700">
                                 Lease Start Date <span class="text-red-500">*</span>
@@ -171,7 +159,6 @@ const submitForm = () => {
                         </div>
 
 
-                        <!-- Payment Due Date -->
                         <div>
                             <label for="account_number" class="block text-sm font-medium text-gray-700">
                                 Account Number <span class="text-gray-500">(optional)</span>
@@ -188,7 +175,6 @@ const submitForm = () => {
                         </div>
                     </div>
 
-                    <!-- Notes -->
                     <div>
                         <label for="notes" class="block text-sm font-medium text-gray-700">Notes</label>
                         <textarea
@@ -200,7 +186,6 @@ const submitForm = () => {
                         <span v-if="form.errors.notes" class="text-red-500 text-sm">{{ form.errors.notes }}</span>
                     </div>
 
-                    <!-- Submit Button -->
                     <div class="flex justify-center mt-6">
                         <button
                             type="submit"

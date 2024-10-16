@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\CommunicationsController;
+use App\Http\Controllers\InvoicesController;
+use App\Http\Controllers\PaymentsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\TenantsController;
@@ -46,6 +48,10 @@ Route::middleware('auth')->group(function () {
 
     Route::get('tenants', [TenantsController::class, 'index'])->name('tenants.index');
     Route::get('tenants/create', [TenantsController::class, 'create'])->name('tenants.create');
+
+    Route::get('invoices', [InvoicesController::class, 'index'])->name('invoices.index');
+
+    Route::get('payments', [PaymentsController::class, 'index'])->name('payments.index');
 
 
     Route::get('communication', [CommunicationsController::class, 'index'])->name('communications.index');
