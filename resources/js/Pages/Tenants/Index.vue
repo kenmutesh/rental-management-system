@@ -30,7 +30,7 @@ const tenantsSummary = ref({
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <!-- Total Tenants Card -->
                 <div class="bg-white shadow-md rounded-lg p-4 flex items-center">
-                    <AcademicCapIcon class="h-6 w-6 text-blue-500 mr-2" />
+                    <AcademicCapIcon class="h-16 w-16 text-blue-500 mr-2" />
                     <div>
                         <h2 class="text-lg font-semibold">Total Tenants</h2>
                         <p class="text-2xl">{{ tenantsSummary.totalTenants }}</p>
@@ -39,16 +39,16 @@ const tenantsSummary = ref({
 
                 <!-- Total Balance Card -->
                 <div class="bg-white shadow-md rounded-lg p-4 flex items-center">
-                    <CashIcon class="h-6 w-6 text-green-500 mr-2" />
+                    <CashIcon class="h-16 w-16 text-green-500 mr-2" />
                     <div>
                         <h2 class="text-lg font-semibold">Total Balance</h2>
-                        <p class="text-2xl">${{ tenantsSummary.totalBalance }}</p>
+                        <p class="text-2xl">KES {{ tenantsSummary.totalBalance }}</p>
                     </div>
                 </div>
 
                 <!-- Default Leases Card -->
                 <div class="bg-white shadow-md rounded-lg p-4 flex items-center">
-                    <DocumentTextIcon class="h-6 w-6 text-yellow-500 mr-2" />
+                    <DocumentTextIcon class="h-16 w-16 text-yellow-500 mr-2" />
                     <div>
                         <h2 class="text-lg font-semibold">Default Leases</h2>
                         <p class="text-2xl">{{ tenantsSummary.defaultLeases }}</p>
