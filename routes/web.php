@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\CommunicationsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\TenantsController;
@@ -45,6 +46,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('tenants', [TenantsController::class, 'index'])->name('tenants.index');
     Route::get('tenants/create', [TenantsController::class, 'create'])->name('tenants.create');
+
+
+    Route::get('communication', [CommunicationsController::class, 'index'])->name('communications.index');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
