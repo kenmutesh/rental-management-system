@@ -1,7 +1,8 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
-// Data
+
+
 const message = ref('');
 const selectedTenants = ref([]);
 const tenantSearch = ref('');

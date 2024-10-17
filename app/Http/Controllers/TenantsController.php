@@ -12,14 +12,29 @@ class TenantsController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $tenants = Tenants::all();
+        $query = Tenants::query();
+        $this->applySearch($query, $request->search);
+
+        $tenants = $query->paginate(10);
 
         return Inertia::render('Tenants/Index', [
-            'tenants' => $tenants
+            'tenants' => $tenants,
+            'search' => $request->search,
+            'page' => $request->page,
         ]);
     }
+
+
+
+    private function applySearch($query, $search)
+    {
+        $query->when($search, function ($query, $search) {
+            $query->where('name', 'like', '%' . $search . '%');
+        });
+    }
+
 
     /**
      * Show the form for creating a new resource.
