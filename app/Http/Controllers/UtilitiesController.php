@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UtilitiesRequest;
+use App\Http\Resources\UtilityResource;
 use App\Models\Utilities;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -17,7 +18,7 @@ class UtilitiesController extends Controller
         $utilities = Utilities::all();
 
         return Inertia::render('Utilities/Index', [
-            'utilities' => $utilities
+            'utilities' => UtilityResource::collection($utilities),
         ]);
     }
 
@@ -37,7 +38,6 @@ class UtilitiesController extends Controller
         $utility = Utilities::create([
             'name' => $request->input('name'),
             'price' => $request->input('price'),
-            'requires_reading' => $request->input('requires_reading', false),
             'fee_type' => $request->input('fee_type'),
         ]);
 
@@ -64,10 +64,27 @@ class UtilitiesController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Utilities $utilities)
+    public function update(UtilitiesRequest $request, Utilities $utility)
     {
-        //
+        $data = $request->validated();
+
+        $status = $request->has('status') ? 1 : 0;
+
+        $utility->update([
+            'name' => $request->name,
+            'price' => $request->price,
+            'fee_type' => $request->fee_type,
+            'status' => $status,
+        ]);
+
+        // Fetch all utilities after update
+        $utilities = Utilities::all();
+
+        return Inertia::render('Utilities/Index', [
+            'utilities' => UtilityResource::collection($utilities),
+        ])->with('success', 'Utility updated successfully.');
     }
+
 
     /**
      * Remove the specified resource from storage.

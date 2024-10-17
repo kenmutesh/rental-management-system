@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\PropertyResource;
 use App\Http\Resources\UnitsResource;
 use App\Models\Property;
 use App\Models\Units;
@@ -86,8 +87,10 @@ class UnitsController extends Controller
      */
     public function edit(Units $unit)
     {
+        $properties = Property::all();
         return Inertia::render('Units/Create', [
-            'unit' => $unit,
+            'unit' => new UnitsResource ($unit),
+            'properties' => PropertyResource::collection($properties),
         ]);
     }
 

@@ -1,40 +1,52 @@
 <script setup>
 import { ref } from 'vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, usePage } from '@inertiajs/vue3';
 
-// Props passed from Inertia
-const props = defineProps(['utilities']);
+const { utilities } = usePage().props; // Load initial utilities data
+const isEditing = ref(false);
+const isSubmitting = ref(false);
 
-const utilityForm = useForm({
+const form = useForm({
     id: null,
     name: '',
     status: false,
-    requires_reading: false, // Field for reading requirement
     fee_type: 'monthly', // Default fee type
     price: null, // Field for price
 });
 
-// Function to handle form submission
 const saveUtility = async () => {
-    const url = utilityForm.id ? `/utilities/${utilityForm.id}` : '/utilities';
-    const method = utilityForm.id ? 'put' : 'post';
+    isSubmitting.value = true;
+    form.errors = {};
 
-    utilityForm.post(url, {
-        method,
-        onFinish: () => resetForm(),
-    });
+    try {
+        if (isEditing.value) {
+            await form.put(route('utilities.update', utilities.id));
+        } else {
+            await form.post(route('utilities.store'));
+        }
+    } catch (error) {
+        console.error(error);
+        form.errors = error.response.data.errors || {};
+    } finally {
+        isSubmitting.value = false;
+    }
 };
 
 // Reset form fields
 const resetForm = () => {
-    utilityForm.reset();
+    form.reset();
 };
 
-// Edit utility
+// Function to edit a utility
 const editUtility = (utility) => {
-    utilityForm.setData({ ...utility }); // Set data in the form
+    form.id = utility.id;
+    form.name = utility.name;
+    form.status = utility.status ? 1 : 1;
+    form.fee_type = utility.fee_type;
+    form.price = utility.price;
 };
 </script>
+
 
 <template>
     <Head title="Utilities" />
@@ -49,7 +61,7 @@ const editUtility = (utility) => {
                         <input
                             type="text"
                             id="name"
-                            v-model="utilityForm.name"
+                            v-model="form.name"
                             class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                             required
                         />
@@ -61,23 +73,10 @@ const editUtility = (utility) => {
                             <input
                                 type="checkbox"
                                 id="status"
-                                v-model="utilityForm.status"
+                                v-model="form.status"
                                 class="form-checkbox h-4 w-4 text-blue-600"
                             />
                             <span class="ml-2 text-gray-700">Active</span>
-                        </label>
-                    </div>
-
-                    <!-- Requires Reading -->
-                    <div class="mb-4">
-                        <label for="requires_reading" class="inline-flex items-center">
-                            <input
-                                type="checkbox"
-                                id="requires_reading"
-                                v-model="utilityForm.requires_reading"
-                                class="form-checkbox h-4 w-4 text-blue-600"
-                            />
-                            <span class="ml-2 text-gray-700">Requires Current Reading</span>
                         </label>
                     </div>
 
@@ -86,7 +85,7 @@ const editUtility = (utility) => {
                         <label for="fee_type" class="block text-sm font-medium text-gray-700">Fee Type</label>
                         <select
                             id="fee_type"
-                            v-model="utilityForm.fee_type"
+                            v-model="form.fee_type"
                             class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                             required
                         >
@@ -102,7 +101,7 @@ const editUtility = (utility) => {
                         <input
                             type="number"
                             id="price"
-                            v-model="utilityForm.price"
+                            v-model="form.price"
                             step="0.01"
                             min="0"
                             class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
@@ -115,7 +114,7 @@ const editUtility = (utility) => {
                             type="submit"
                             class="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
                         >
-                            {{ utilityForm.id ? 'Update Utility' : 'Add Utility' }}
+                            {{ form.id ? 'Update Utility' : 'Add Utility' }}
                         </button>
                     </div>
                 </form>
@@ -126,21 +125,21 @@ const editUtility = (utility) => {
                     <table class="min-w-full border border-gray-300">
                         <thead>
                             <tr class="bg-gray-100">
+                                <th class="px-4 py-2 border">#</th>
                                 <th class="px-4 py-2 border">Name</th>
                                 <th class="px-4 py-2 border">Status</th>
-                                <th class="px-4 py-2 border">Requires Reading</th>
                                 <th class="px-4 py-2 border">Fee Type</th>
                                 <th class="px-4 py-2 border">Price</th>
                                 <th class="px-4 py-2 border">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="utility in props.utilities" :key="utility.id">
+                            <tr v-for="(utility, index) in utilities.data" :key="utility.id">
+                                <td class="px-4 py-2 border">{{ index + 1 }}</td>
                                 <td class="px-4 py-2 border">{{ utility.name }}</td>
-                                <td class="px-4 py-2 border">{{ utility.status ? 'Active' : 'Inactive' }}</td>
-                                <td class="px-4 py-2 border">{{ utility.requires_reading ? 'Yes' : 'No' }}</td>
+                                <td class="px-4 py-2 border">{{ utility.status }}</td>
                                 <td class="px-4 py-2 border">{{ utility.fee_type }}</td>
-                                <td class="px-4 py-2 border">${{ utility.price.toFixed(2) }}</td>
+                                <td class="px-4 py-2 border">KES {{ utility.price }}</td>
                                 <td class="px-4 py-2 border">
                                     <button
                                         @click="editUtility(utility)"

@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->decimal('price', 10, 2);
-            $table->boolean('requires_reading')->default(false);
-            $table->enum('fee_type', ['one_time', 'renewable', 'monthly'])->default('monthly');
+            $table->boolean('status')->default(false);
+            $table->enum('fee_type', ['one_time', 'monthly'])->default('monthly');
             $table->timestamps();
         });
     }

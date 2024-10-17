@@ -24,7 +24,7 @@ class UtilitiesRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
-            'requires_reading' => 'boolean',
+            'status' => 'nullable|boolean',
             'fee_type' => 'required|in:one_time,renewable,monthly',
         ];
     }
@@ -35,6 +35,7 @@ class UtilitiesRequest extends FormRequest
             'name.required' => 'The utility name is required.',
             'price.required' => 'The utility price is required.',
             'price.numeric' => 'The utility price must be a number.',
+            'status.boolean' => 'The requires reading field must be true or false.',
             'requires_reading.boolean' => 'The requires reading field must be true or false.',
             'fee_type.required' => 'The fee type is required.',
             'fee_type.in' => 'The fee type must be one of the following: one_time, renewable, monthly.',

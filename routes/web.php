@@ -44,7 +44,12 @@ Route::middleware('auth')->group(function () {
     Route::post('units', [UnitsController::class, 'store'])->name('units.store');
     Route::get('units/{property}', [UnitsController::class, 'show'])->name('units.store');
 
-    Route::resource('utilities', UtilitiesController::class);
+    Route::get('utilities', [UtilitiesController::class, 'index'])->name('utilities.index');
+    Route::get('utilities/create', [UtilitiesController::class, 'create'])->name('utilities.create');
+    Route::post('utilities', [UtilitiesController::class, 'store'])->name('utilities.store');
+    Route::post('utilities/edit/{utility}', [UtilitiesController::class, 'update'])->name('utilities.update');
+
+
 
     Route::get('tenants', [TenantsController::class, 'index'])->name('tenants.index');
     Route::get('tenants/create', [TenantsController::class, 'create'])->name('tenants.create');

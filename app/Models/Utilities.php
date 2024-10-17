@@ -12,8 +12,7 @@ class Utilities extends Model
     protected $fillable = [
         'name',
         'price',
-        'requires_reading',
         'fee_type',
-
+        'status'
     ];
 }

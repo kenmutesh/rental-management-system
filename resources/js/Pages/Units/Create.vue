@@ -1,25 +1,24 @@
 <script setup>
 import { ref, defineProps } from 'vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
 
 const props = defineProps({
-    properties: Array, // Define the properties prop
+    unit: Object // Define the properties prop
 });
 
+const { properties } = usePage().props;
 const unit = ref({
     id: null,
-    property_id: null,
+    property_id: '',
     name: '',
     rentAmount: '',
-    occupied: false,
     taxRate: null,
     recurringBills: [],
     notes: '',
 });
 
-// Get existing unit data if editing
 if (props.unit) {
-    Object.assign(unit.value, props.unit);
+    Object.assign(unit.value, props.unit.data);
 }
 
 // Function to handle form submission
@@ -52,13 +51,14 @@ const saveUnit = async () => {
                         <div class="mb-4">
                             <label for="propertyId" class="block text-sm font-medium text-gray-700">Select Property</label>
                             <select
-                                id="propertyId"
+                                id="property"
                                 v-model="unit.property_id"
-                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
                                 required
+                                :disabled="unit.id !== null"
                             >
-                                <option value="">Select a property</option>
-                                <option v-for="property in props.properties" :key="property.id" :value="property.id">
+                                <option disabled value="">Select Property</option>
+                                <option v-for="property in properties.data" :key="property.id" :value="property.id">
                                     {{ property.propertyName }}
                                 </option>
                             </select>
@@ -70,6 +70,7 @@ const saveUnit = async () => {
                             <input
                                 type="text"
                                 id="unitName"
+                                :disabled="unit.property_id == ''"
                                 v-model="unit.name"
                                 class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                                 required
@@ -88,18 +89,6 @@ const saveUnit = async () => {
                             />
                         </div>
 
-                        <!-- Occupied -->
-                        <div class="mb-4">
-                            <label for="occupied" class="inline-flex items-center">
-                                <input
-                                    type="checkbox"
-                                    id="occupied"
-                                    v-model="unit.occupied"
-                                    class="form-checkbox h-4 w-4 text-blue-600"
-                                />
-                                <span class="ml-2 text-gray-700">Occupied</span>
-                            </label>
-                        </div>
 
                         <!-- Tax Rate -->
                         <div class="mb-4">
