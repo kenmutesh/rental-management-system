@@ -26,15 +26,10 @@ class CommunicationsController extends Controller
      */
     public function create()
     {
-        // Fetch registered tenants from the database
         $tenants = Tenants::select('id', 'name', 'phone')->get();
 
-        // Fetch message templates from the database
-        // $templates = MessageTemplate::select('id', 'content')->get();
-
         return Inertia::render('Communication/Create', [
-            'tenants' => $tenants,         // Pass tenants to the Vue component
-            // 'templates' => $templates      // Pass templates to the Vue component
+            'tenants' => $tenants,
         ]);
     }
 
