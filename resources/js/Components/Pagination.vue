@@ -17,7 +17,7 @@ const props = defineProps({
           <li v-if="link.label === '...'" :key="link.label">
             <span class="pagination-ellipsis">&hellip;</span>
           </li>
-          <li v-else :key="link.label">
+          <li v-else>
             <Link
               preserve-scroll
               preserve-state
@@ -29,8 +29,9 @@ const props = defineProps({
               }"
               :aria-current="link.active ? 'page' : null"
               :href="link.url || null"
-              v-html="link.label"
-            />
+            >
+            <span v-html="link.label"></span>
+            </Link>
           </li>
         </template>
       </ul>

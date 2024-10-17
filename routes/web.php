@@ -48,6 +48,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('tenants', [TenantsController::class, 'index'])->name('tenants.index');
     Route::get('tenants/create', [TenantsController::class, 'create'])->name('tenants.create');
+    Route::get('tenants/edit/{tenant}', [TenantsController::class, 'edit'])->name('tenants.edit');
+    Route::get('tenants/invoices/{tenant}', [TenantsController::class, 'invoices'])->name('tenants.invoices');
     Route::post('tenants/store', [TenantsController::class, 'store'])->name('tenants.store');
 
     Route::get('invoices', [InvoicesController::class, 'index'])->name('invoices.index');

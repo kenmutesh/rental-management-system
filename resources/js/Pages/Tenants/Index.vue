@@ -5,13 +5,12 @@ import { AcademicCapIcon, CashIcon, DocumentTextIcon, PlusIcon } from '@heroicon
 
 // Tenants summary data
 const tenantsSummary = ref({
-    totalTenants: 100,
     totalBalance: 5000,
     defaultLeases: 5,
 });
 
 // Get props from usePage
-const { search, page, tenants: propsTenants } = usePage().props;
+const { search, page, totalTenants, tenants: propsTenants } = usePage().props;
 
 // Set initial values for searchQuery and pageNumber
 const pageNumber = ref(page || 1);
@@ -64,7 +63,7 @@ watch(() => tenantUrl.value, (updatedUrl) => {
                     <AcademicCapIcon class="h-16 w-16 text-blue-500 mr-2" />
                     <div>
                         <h2 class="text-lg font-semibold">Total Tenants</h2>
-                        <p class="text-2xl">{{ tenantsSummary.totalTenants }}</p>
+                        <p class="text-2xl">{{ totalTenants }}</p>
                     </div>
                 </div>
                 <div class="bg-white shadow-md rounded-lg p-4 flex items-center">
@@ -102,6 +101,7 @@ watch(() => tenantUrl.value, (updatedUrl) => {
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tenant Name</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lease Expiration</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
@@ -110,12 +110,27 @@ watch(() => tenantUrl.value, (updatedUrl) => {
                             <td class="px-6 py-4 whitespace-nowrap">{{ tenant.name }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">KES {{ tenant.balance }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">{{ tenant.lease_expiration }}</td>
+                            <td class="py-4 px-6">
+                            <Link
+                                :href="`/tenants/invoices/${tenant.id}`"
+                                class="text-blue-500 hover:text-blue-700 font-semibold mr-4"
+                            >
+                                View invoices
+                            </Link>
+                            <Link
+                                :href="`/tenants/edit/${tenant.id}`"
+                                class="text-red-500 hover:text-red-700 font-semibold mr-4"
+                            >
+                                Edit
+                            </Link>
+                        </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
             <div class="mt-4">
-                <app-pagination :pagination="tenants" />
+
+                <app-pagination :pagination="tenants.meta" />
             </div>
         </div>
     </app-layout>

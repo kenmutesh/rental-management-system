@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('tenant_id')->constrained('tenants')->onDelete('cascade');
+            $table->decimal('amount_invoiced', 10, 2)->default(0);
+            $table->decimal('amount_paid', 10, 2)->default(0);
+            $table->string('item');
+            $table->string('month');
             $table->timestamps();
         });
     }

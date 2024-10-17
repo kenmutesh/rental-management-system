@@ -24,12 +24,14 @@ class TenantsController extends Controller
             $query = $this->applySearch($query, $request->search);
         }
 
+        $totalTenants = Tenants::all()->count();
 
         $tenants = $query->paginate(10);
         return Inertia::render('Tenants/Index', [
             'tenants' => TenantsResource::collection($tenants),
             'search' => $request->search,
             'page' => $request->page,
+            'totalTenants' => $totalTenants
         ]);
     }
 
@@ -39,7 +41,7 @@ class TenantsController extends Controller
     {
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', '%' . $search . '%')
+                $q->where('firstName', 'like', '%' . $search . '%')
                     ->orWhere('phone', 'like', '%' . $search . '%');
             });
         }
@@ -104,9 +106,13 @@ class TenantsController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Tenants $tenants)
+    public function invoices(Tenants $tenants)
     {
-        //
+        $invoices = [];
+
+        return Inertia::render('Tenants/Invoices', [
+            'invoices' => $invoices
+        ]);
     }
 
     /**
