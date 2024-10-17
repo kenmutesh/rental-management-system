@@ -48,6 +48,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('tenants', [TenantsController::class, 'index'])->name('tenants.index');
     Route::get('tenants/create', [TenantsController::class, 'create'])->name('tenants.create');
+    Route::post('tenants/store', [TenantsController::class, 'store'])->name('tenants.store');
 
     Route::get('invoices', [InvoicesController::class, 'index'])->name('invoices.index');
 

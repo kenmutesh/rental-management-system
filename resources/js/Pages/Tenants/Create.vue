@@ -8,11 +8,8 @@ const form = useForm({
     lastName: '',
     email: '',
     phone: '',
-    address: '',
     leaseStartDate: '',
     accountNumber: '',
-    rentAmount: '',
-    paymentDueDate: '',
     notes: '',
     property_id: '',
     unit_id: '',
@@ -34,7 +31,7 @@ watch(() => form.property_id, (newVal) => {
 });
 
 const submitForm = () => {
-    form.post('/tenants', {
+    form.post('/tenants/store', {
         onFinish: () => {
             form.reset();
         },
@@ -187,11 +184,13 @@ const submitForm = () => {
                     </div>
 
                     <div class="flex justify-center mt-6">
+
                         <button
                             type="submit"
-                            class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out"
+                            class=" flex justify-between px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out"
                             :disabled="form.processing"
                         >
+                        <PlusIcon class="w-5 h-5 mr-2" />
                             <span v-if="!form.processing">Submit</span>
                             <span v-else>Processing...</span>
                         </button>

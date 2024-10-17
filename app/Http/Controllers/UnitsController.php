@@ -47,6 +47,15 @@ class UnitsController extends Controller
             'notes' => 'nullable|string',
         ]);
 
+        $property = Property::find($request->property_id);
+
+        if ($property->units()->count() >= $property->totalUnits) {
+            return response()->json([
+                'message' => 'The property has reached the maximum number of units allowed.',
+                'units' => $property->units,
+            ], 400);
+        }
+
         $unit = Units::create([
             'name' => $request->name,
             'property_id' => $request->property_id,

@@ -18,6 +18,7 @@ class PropertyResource extends JsonResource
             'id'                => $this->id,
             'propertyName'      => $this->propertyName,
             'totalUnits'        => $this->totalUnits,
+            'vacancies'         => $this->getVacancies(),
             'city'              => $this->city,
             'waterRate'         => $this->waterRate,
             'electricityRate'   => $this->electricityRate,
@@ -25,5 +26,11 @@ class PropertyResource extends JsonResource
             'streetName'        => $this->streetName,
             'paymentUnstructions'=> $this->paymentUnstructions,
         ];
+    }
+
+
+    private function getVacancies()
+    {
+        return $this->units()->whereNull('occupied_by')->count();
     }
 }

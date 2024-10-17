@@ -8,8 +8,8 @@ const props = defineProps({
 
 const unit = ref({
     id: null,
-    propertyId: null,
-    unitName: '',
+    property_id: null,
+    name: '',
     rentAmount: '',
     occupied: false,
     taxRate: null,
@@ -53,7 +53,7 @@ const saveUnit = async () => {
                             <label for="propertyId" class="block text-sm font-medium text-gray-700">Select Property</label>
                             <select
                                 id="propertyId"
-                                v-model="unit.propertyId"
+                                v-model="unit.property_id"
                                 class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                                 required
                             >
@@ -70,7 +70,7 @@ const saveUnit = async () => {
                             <input
                                 type="text"
                                 id="unitName"
-                                v-model="unit.unitName"
+                                v-model="unit.name"
                                 class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                                 required
                             />

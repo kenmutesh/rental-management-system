@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\TenantRequest;
+use App\Http\Resources\TenantsResource;
 use App\Models\Property;
 use App\Models\Tenants;
+use App\Models\Units;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class TenantsController extends Controller
@@ -16,10 +20,14 @@ class TenantsController extends Controller
     {
         $query = Tenants::query();
 
-        $tenants = $this->applySearch($query, $request->search);
+        if ($request->has('search') && !empty($request->search)) {
+            $query = $this->applySearch($query, $request->search);
+        }
 
+
+        $tenants = $query->paginate(10);
         return Inertia::render('Tenants/Index', [
-            'tenants' => $tenants->paginate(10),
+            'tenants' => TenantsResource::collection($tenants),
             'search' => $request->search,
             'page' => $request->page,
         ]);
@@ -56,9 +64,41 @@ class TenantsController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(TenantRequest $request)
     {
-        //
+        DB::beginTransaction();
+
+        try {
+            $tenant = Tenants::create([
+                'firstName' => $request->firstName,
+                'lastName' => $request->lastName,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'address' => 'test',
+                'account_number' => $request->accountNumber,
+                'lease_start_date' => $request->leaseStartDate,
+                'balance' => 0,
+            ]);
+
+            $unit = Units::find($request->unit_id);
+
+            if (!$unit) {
+                DB::rollBack();
+                return response()->json(['error' => 'Unit not found'], 404);
+            }
+
+            $unit->occupied_by = $tenant->id;
+            $unit->save();
+
+            DB::commit();
+
+            return to_route('tenants.index')->with('success', 'Tenant created successful');
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return to_route('tenants.create')->with('error', 'Failed to create tenant');
+        }
+
     }
 
     /**

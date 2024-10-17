@@ -10,9 +10,11 @@ class Tenants extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name',
+        'firstName',
+        'lastName',
         'email',
         'phone',
+        'account_number',
         'address',
         'lease_start_date',
         'lease_end_date',

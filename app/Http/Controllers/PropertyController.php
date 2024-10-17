@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\PropertyResource;
 use App\Models\Property;
+use App\Models\Units;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -14,9 +15,18 @@ class PropertyController extends Controller
      */
     public function index()
     {
-        $properties = Property::all(); // Fetch all properties
+        $properties = Property::with('units')->get();
+
+
+        $vacancies = Units::whereNull('occupied_by')->count();
+
         return Inertia::render('Property/Index', [
-            'properties' => $properties,
+            'properties' => PropertyResource::collection($properties),
+            'vacancies' => $vacancies,
+            'totalUnits' => $properties->sum(function ($property) {
+                return $property->units->count();
+            }),
+            'totalProperties' => $properties->count()
         ]);
     }
 

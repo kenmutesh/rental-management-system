@@ -13,6 +13,7 @@ class Units extends Model
         'name',
         'property_id',
         'rentAmount',
+        'occupied_by',
         'notes',
     ];
 

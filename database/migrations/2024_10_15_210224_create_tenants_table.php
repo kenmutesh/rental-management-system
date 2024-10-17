@@ -13,12 +13,14 @@ return new class extends Migration
     {
         Schema::create('tenants', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('firstName');
+            $table->string('lastName');
             $table->string('email')->unique();
             $table->string('phone')->nullable();
             $table->text('address')->nullable();
             $table->date('lease_start_date');
-            $table->date('lease_end_date');
+            $table->string('account_number')->nullable();
+            $table->date('lease_end_date')->nullable();
             $table->decimal('balance', 10, 2)->default(0);
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->timestamps();

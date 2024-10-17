@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class MessageResource extends JsonResource
+class TenantsResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,10 +16,12 @@ class MessageResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->tenant->firstName ?? " ",
-            'message' => $this->message ?? " ",
-            'status' => $this->response_description ?? '',
-            'created_at' => $this->created_at->format('d/m/Y') ?? " ",
+            'name' => $this->firstName,
+            'email' => $this->email,
+            'phone' => $this->phone,
+            'balance' => $this->balance
+
+
         ];
     }
 }
