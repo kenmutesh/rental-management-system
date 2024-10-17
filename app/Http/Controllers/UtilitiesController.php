@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UtilitiesRequest;
 use App\Models\Utilities;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -14,7 +15,7 @@ class UtilitiesController extends Controller
     public function index()
     {
         $utilities = Utilities::all();
-        
+
         return Inertia::render('Utilities/Index', [
             'utilities' => $utilities
         ]);
@@ -31,9 +32,17 @@ class UtilitiesController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(UtilitiesRequest $request)
     {
-        //
+        $utility = Utilities::create([
+            'name' => $request->input('name'),
+            'price' => $request->input('price'),
+            'requires_reading' => $request->input('requires_reading', false),
+            'fee_type' => $request->input('fee_type'),
+        ]);
+
+
+        return to_route('utilities.index')->with('success', 'Utilities created successfully');
     }
 
     /**

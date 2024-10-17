@@ -16,9 +16,13 @@ class UnitsController extends Controller
     public function index(Request $request)
     {
         $units = Units::all();
+        $totalUnits = $units->count();
+        $totalOccupied = $units->whereNull('occupied_by')->count();
 
         return Inertia::render('Units/Index', [
-            'units' => $units,
+            'units' => UnitsResource::collection($units),
+            'totalUnits' => $totalUnits,
+            'totalOccupied' => $totalOccupied
         ]);
 
     }

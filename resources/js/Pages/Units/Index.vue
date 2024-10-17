@@ -4,12 +4,8 @@ import { ref, computed } from 'vue';
 import { OfficeBuildingIcon } from '@heroicons/vue/outline';
 
 // Fetching units from the Inertia page props
-const { units } = usePage().props;
+const { units, totalOccupied, totalUnits } = usePage().props;
 
-// State for managing totals
-const totalUnits = ref(units.length);
-const totalOccupied = ref(units.filter(unit => unit.occupied).length);
-const totalVacancies = ref(totalUnits.value - totalOccupied.value);
 
 </script>
 
@@ -46,7 +42,7 @@ const totalVacancies = ref(totalUnits.value - totalOccupied.value);
                 <OfficeBuildingIcon class="w-10 h-10 text-blue-500 mr-4" />
                 <div>
                     <h3 class="text-lg font-semibold text-gray-700">Total Vacancies</h3>
-                    <p class="text-2xl font-bold text-blue-500">{{ totalVacancies }}</p>
+                    <p class="text-2xl font-bold text-blue-500">{{ totalUnits - totalOccupied }}</p>
                 </div>
             </div>
         </div>
@@ -58,15 +54,17 @@ const totalVacancies = ref(totalUnits.value - totalOccupied.value);
                     <tr class="bg-gray-100">
                         <th class="py-3 px-6 text-left text-sm font-medium text-gray-600">#</th>
                         <th class="py-3 px-6 text-left text-sm font-medium text-gray-600">Unit Name</th>
-                        <th class="py-3 px-6 text-left text-sm font-medium text-gray-600">Occupied</th>
+                        <th class="py-3 px-6 text-left text-sm font-medium text-gray-600">Status</th>
+                        <th class="py-3 px-6 text-left text-sm font-medium text-gray-600">Price</th>
                         <th class="py-3 px-6 text-left text-sm font-medium text-gray-600">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(unit, index) in units" :key="unit.id" class="border-t">
+                    <tr v-for="(unit, index) in units.data" :key="unit.id" class="border-t">
                         <td class="py-4 px-6 text-sm text-gray-700">{{ index + 1 }}</td>
                         <td class="py-4 px-6 text-sm text-gray-700">{{ unit.name }}</td>
-                        <td class="py-4 px-6 text-sm text-gray-700">{{ unit.occupied ? 'Yes' : 'No' }}</td>
+                        <td class="py-4 px-6 text-sm text-gray-700">{{ unit.status }}</td>
+                        <td class="py-4 px-6 text-sm text-gray-700">{{ unit.price }}</td>
                         <td class="py-4 px-6">
                             <Link
                                 :href="`/units/edit/${unit.id}`"

@@ -8,4 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class Utilities extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'name',
+        'price',
+        'requires_reading',
+        'fee_type',
+
+    ];
 }

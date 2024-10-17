@@ -14,6 +14,11 @@ class UnitsResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'status' => $this->occupied_by ? 'Occupied' : 'Available',
+            'price' => $this->rentAmount
+        ];
     }
 }

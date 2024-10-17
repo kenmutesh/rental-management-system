@@ -1,40 +1,38 @@
 <script setup>
 import { ref } from 'vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, useForm } from '@inertiajs/vue3';
 
 // Props passed from Inertia
 const props = defineProps(['utilities']);
 
-const utilityForm = ref({
+const utilityForm = useForm({
     id: null,
     name: '',
     status: false,
-    type: 'once', // Default type
+    requires_reading: false, // Field for reading requirement
+    fee_type: 'monthly', // Default fee type
+    price: null, // Field for price
 });
 
 // Function to handle form submission
 const saveUtility = async () => {
-    const url = utilityForm.value.id ? `/utilities/${utilityForm.value.id}` : '/utilities';
-    const method = utilityForm.value.id ? 'put' : 'post';
+    const url = utilityForm.id ? `/utilities/${utilityForm.id}` : '/utilities';
+    const method = utilityForm.id ? 'put' : 'post';
 
-    try {
-        // Use Inertia for form submissions
-        await Inertia[method](url, utilityForm.value);
-        resetForm();
-    } catch (error) {
-        console.error('Error saving utility:', error);
-        alert('Error saving utility. Please try again.'); // Error feedback
-    }
+    utilityForm.post(url, {
+        method,
+        onFinish: () => resetForm(),
+    });
 };
 
 // Reset form fields
 const resetForm = () => {
-    utilityForm.value = { id: null, name: '', status: false, type: 'once' };
+    utilityForm.reset();
 };
 
 // Edit utility
 const editUtility = (utility) => {
-    utilityForm.value = { ...utility }; 
+    utilityForm.setData({ ...utility }); // Set data in the form
 };
 </script>
 
@@ -70,18 +68,46 @@ const editUtility = (utility) => {
                         </label>
                     </div>
 
-                    <!-- Type -->
+                    <!-- Requires Reading -->
                     <div class="mb-4">
-                        <label for="type" class="block text-sm font-medium text-gray-700">Type</label>
+                        <label for="requires_reading" class="inline-flex items-center">
+                            <input
+                                type="checkbox"
+                                id="requires_reading"
+                                v-model="utilityForm.requires_reading"
+                                class="form-checkbox h-4 w-4 text-blue-600"
+                            />
+                            <span class="ml-2 text-gray-700">Requires Current Reading</span>
+                        </label>
+                    </div>
+
+                    <!-- Fee Type -->
+                    <div class="mb-4">
+                        <label for="fee_type" class="block text-sm font-medium text-gray-700">Fee Type</label>
                         <select
-                            id="type"
-                            v-model="utilityForm.type"
+                            id="fee_type"
+                            v-model="utilityForm.fee_type"
                             class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                             required
                         >
-                            <option value="once">Once</option>
-                            <option value="recurrent">Recurrent</option>
+                            <option value="one_time">One Time</option>
+                            <option value="renewable">Renewable</option>
+                            <option value="monthly">Monthly</option>
                         </select>
+                    </div>
+
+                    <!-- Price -->
+                    <div class="mb-4">
+                        <label for="price" class="block text-sm font-medium text-gray-700">Price</label>
+                        <input
+                            type="number"
+                            id="price"
+                            v-model="utilityForm.price"
+                            step="0.01"
+                            min="0"
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                            required
+                        />
                     </div>
 
                     <div>
@@ -102,7 +128,9 @@ const editUtility = (utility) => {
                             <tr class="bg-gray-100">
                                 <th class="px-4 py-2 border">Name</th>
                                 <th class="px-4 py-2 border">Status</th>
-                                <th class="px-4 py-2 border">Type</th>
+                                <th class="px-4 py-2 border">Requires Reading</th>
+                                <th class="px-4 py-2 border">Fee Type</th>
+                                <th class="px-4 py-2 border">Price</th>
                                 <th class="px-4 py-2 border">Actions</th>
                             </tr>
                         </thead>
@@ -110,7 +138,9 @@ const editUtility = (utility) => {
                             <tr v-for="utility in props.utilities" :key="utility.id">
                                 <td class="px-4 py-2 border">{{ utility.name }}</td>
                                 <td class="px-4 py-2 border">{{ utility.status ? 'Active' : 'Inactive' }}</td>
-                                <td class="px-4 py-2 border">{{ utility.type }}</td>
+                                <td class="px-4 py-2 border">{{ utility.requires_reading ? 'Yes' : 'No' }}</td>
+                                <td class="px-4 py-2 border">{{ utility.fee_type }}</td>
+                                <td class="px-4 py-2 border">${{ utility.price.toFixed(2) }}</td>
                                 <td class="px-4 py-2 border">
                                     <button
                                         @click="editUtility(utility)"
