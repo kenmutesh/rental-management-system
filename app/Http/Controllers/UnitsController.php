@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\PropertyResource;
 use App\Http\Resources\UnitsResource;
+use App\Http\Resources\UtilityResource;
 use App\Models\Property;
 use App\Models\Units;
+use App\Models\Utilities;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -34,9 +36,11 @@ class UnitsController extends Controller
     public function create()
     {
         $properties = Property::all();
+        $utilities = Utilities::all();
 
         return Inertia::render('Units/Create', [
-            'properties' => $properties,
+            'properties' => PropertyResource::collection($properties),
+            'utilities' => UtilityResource::collection($utilities),
         ]);
     }
 
@@ -68,7 +72,23 @@ class UnitsController extends Controller
             'notes' => $request->notes,
         ]);
 
-        return response()->json(['data' => $unit], 201);
+        if ($request->has('recurringBills')) {
+            foreach ($request->recurringBills as $bill) {
+                $unit->unit_utilities()->create([
+                    'utility_id' => $bill['type'],
+                ]);
+            }
+        }
+
+        $units = Units::all();
+        $totalUnits = $units->count();
+        $totalOccupied = $units->whereNull('occupied_by')->count();
+
+        return to_route('units.index', [
+            'units' => UnitsResource::collection($units),
+            'totalUnits' => $totalUnits,
+            'totalOccupied' => $totalOccupied
+        ]);
     }
 
 

@@ -47,7 +47,7 @@ Route::middleware('auth')->group(function () {
     Route::get('utilities', [UtilitiesController::class, 'index'])->name('utilities.index');
     Route::get('utilities/create', [UtilitiesController::class, 'create'])->name('utilities.create');
     Route::post('utilities', [UtilitiesController::class, 'store'])->name('utilities.store');
-    Route::post('utilities/edit/{utility}', [UtilitiesController::class, 'update'])->name('utilities.update');
+    Route::put('utilities/{utility}', [UtilitiesController::class, 'update'])->name('utilities.update');
 
 
 

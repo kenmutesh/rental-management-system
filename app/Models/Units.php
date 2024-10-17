@@ -24,5 +24,11 @@ class Units extends Model
         return $this->belongsTo(Property::class);
     }
 
+    public function unit_utilities()
+    {
+        return $this->hasMany(UnitUtilities::class);
+    }
+
+
 
 }

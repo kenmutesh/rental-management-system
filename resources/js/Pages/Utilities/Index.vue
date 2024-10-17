@@ -2,7 +2,8 @@
 import { ref } from 'vue';
 import { Head, useForm, usePage } from '@inertiajs/vue3';
 
-const { utilities } = usePage().props; // Load initial utilities data
+const { utilities: initialUtilities } = usePage().props; // Fetch initial utilities from props
+const utilities = ref(initialUtilities); // Make utilities reactive
 const isEditing = ref(false);
 const isSubmitting = ref(false);
 
@@ -10,8 +11,8 @@ const form = useForm({
     id: null,
     name: '',
     status: false,
-    fee_type: 'monthly', // Default fee type
-    price: null, // Field for price
+    fee_type: 'monthly',
+    price: null,
 });
 
 const saveUtility = async () => {
@@ -20,10 +21,12 @@ const saveUtility = async () => {
 
     try {
         if (isEditing.value) {
-            await form.put(route('utilities.update', utilities.id));
+            await form.put(route('utilities.update', form.id));
         } else {
             await form.post(route('utilities.store'));
         }
+        utilities.value = usePage().props.utilities;
+        resetForm(); 
     } catch (error) {
         console.error(error);
         form.errors = error.response.data.errors || {};
@@ -32,20 +35,23 @@ const saveUtility = async () => {
     }
 };
 
-// Reset form fields
+
 const resetForm = () => {
     form.reset();
+    isEditing.value = false; // Reset editing state
 };
 
-// Function to edit a utility
 const editUtility = (utility) => {
     form.id = utility.id;
     form.name = utility.name;
-    form.status = utility.status ? 1 : 1;
+    form.status = utility.status ? true : false;
     form.fee_type = utility.fee_type;
     form.price = utility.price;
+    isEditing.value = true;
 };
+
 </script>
+
 
 
 <template>

@@ -39,10 +39,14 @@ class UtilitiesController extends Controller
             'name' => $request->input('name'),
             'price' => $request->input('price'),
             'fee_type' => $request->input('fee_type'),
+            'status' => $request->input('status', false),
         ]);
 
+        $utilities = Utilities::all(); // Get updated utilities
 
-        return to_route('utilities.index')->with('success', 'Utilities created successfully');
+        return Inertia::render('Utilities/Index', [
+            'utilities' => UtilityResource::collection($utilities),
+        ])->with('success', 'Utility created successfully');
     }
 
     /**
@@ -66,23 +70,18 @@ class UtilitiesController extends Controller
      */
     public function update(UtilitiesRequest $request, Utilities $utility)
     {
-        $data = $request->validated();
-
-        $status = $request->has('status') ? 1 : 0;
-
         $utility->update([
-            'name' => $request->name,
-            'price' => $request->price,
-            'fee_type' => $request->fee_type,
-            'status' => $status,
+            'name' => $request->input('name'),
+            'price' => $request->input('price'),
+            'fee_type' => $request->input('fee_type'),
+            'status' => $request->input('status', false),
         ]);
 
-        // Fetch all utilities after update
-        $utilities = Utilities::all();
+        $utilities = Utilities::all(); // Get updated utilities
 
         return Inertia::render('Utilities/Index', [
             'utilities' => UtilityResource::collection($utilities),
-        ])->with('success', 'Utility updated successfully.');
+        ])->with('success', 'Utility updated successfully');
     }
 
 

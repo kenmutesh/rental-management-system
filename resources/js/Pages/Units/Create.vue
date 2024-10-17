@@ -3,10 +3,10 @@ import { ref, defineProps } from 'vue';
 import { Head, Link, usePage } from '@inertiajs/vue3';
 
 const props = defineProps({
-    unit: Object // Define the properties prop
+    unit: Object,
 });
 
-const { properties } = usePage().props;
+const { properties, utilities } = usePage().props;
 const unit = ref({
     id: null,
     property_id: '',
@@ -17,6 +17,10 @@ const unit = ref({
     notes: '',
 });
 
+// To keep track of already selected bill types
+const selectedBillTypes = ref(new Set());
+const newBillType = ref(''); // Ref to hold the currently selected bill type
+
 if (props.unit) {
     Object.assign(unit.value, props.unit.data);
 }
@@ -26,8 +30,15 @@ const saveUnit = async () => {
     const url = unit.value.id ? `/units/${unit.value.id}` : '/units';
     const method = unit.value.id ? 'put' : 'post';
 
+    // Only send bill types for recurring bills
+    const billsToSend = unit.value.recurringBills.map(bill => ({
+        type: bill.type,
+        name: bill.name, // Include the bill name
+    }));
+    const payload = { ...unit.value, recurringBills: billsToSend };
+
     try {
-        await axios[method](url, unit.value);
+        await axios[method](url, payload);
         // Handle success (e.g., redirect or show a success message)
     } catch (error) {
         console.error('Error saving unit:', error);
@@ -35,6 +46,22 @@ const saveUnit = async () => {
     }
 };
 
+// Function to add a bill
+const addBill = (billType) => {
+    const utility = utilities.data.find(u => u.id === billType);
+    if (billType && utility && !selectedBillTypes.value.has(billType)) {
+        unit.value.recurringBills.push({ type: billType, name: utility.name });
+        selectedBillTypes.value.add(billType); // Track selected bill type
+        newBillType.value = ''; // Reset the select input
+    }
+};
+
+// Function to remove a bill
+const removeBill = (index) => {
+    const billType = unit.value.recurringBills[index].type;
+    unit.value.recurringBills.splice(index, 1);
+    selectedBillTypes.value.delete(billType); // Remove from selected types
+};
 </script>
 
 <template>
@@ -46,7 +73,7 @@ const saveUnit = async () => {
                     {{ unit.id ? 'Edit Unit' : 'Create Unit' }}
                 </h1>
                 <form @submit.prevent="saveUnit">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4"> <!-- Responsive grid layout -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <!-- Select Property -->
                         <div class="mb-4">
                             <label for="propertyId" class="block text-sm font-medium text-gray-700">Select Property</label>
@@ -89,7 +116,6 @@ const saveUnit = async () => {
                             />
                         </div>
 
-
                         <!-- Tax Rate -->
                         <div class="mb-4">
                             <label for="taxRate" class="block text-sm font-medium text-gray-700">Tax Rate % (optional)</label>
@@ -106,38 +132,30 @@ const saveUnit = async () => {
                         </div>
 
                         <!-- Other Recurring Bills -->
-                        <div class="mb-4 col-span-1 md:col-span-2"> <!-- Span across both columns -->
+                        <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700">Other Recurring Bills (optional)</label>
-                            <div v-for="(bill, index) in unit.recurringBills" :key="index" class="flex space-x-2 mb-2">
-                                <select
-                                    v-model="bill.type"
-                                    class="block border border-gray-300 rounded-md shadow-sm p-2"
-                                    required
-                                >
-                                    <option value="">Select bill type</option>
-                                    <option value="water">Water</option>
-                                    <option value="electricity">Electricity</option>
-                                    <option value="internet">Internet</option>
-                                </select>
-                                <input
-                                    type="number"
-                                    v-model="bill.amount"
-                                    placeholder="Amount"
-                                    class="block border border-gray-300 rounded-md shadow-sm p-2"
-                                    required
-                                />
+                            <div v-for="(bill, index) in unit.recurringBills" :key="index" class="flex items-center space-x-2 mb-2">
+                                <span class="bg-blue-500 text-white text-xs font-medium mr-2 px-2.5 py-0.5 rounded">
+                                    {{ bill.name }}
+                                </span>
+                                <button type="button" @click="removeBill(index)" class="text-red-500 hover:text-red-700">
+                                    Remove
+                                </button>
                             </div>
-                            <button
-                                type="button"
-                                @click="unit.recurringBills.push({ type: '', amount: '' })"
-                                class="text-blue-500 hover:text-blue-700"
+                            <select
+                                v-model="newBillType"
+                                @change="addBill(newBillType)"
+                                class="block border border-gray-300 rounded-md shadow-sm p-2"
                             >
-                                Add Bill
-                            </button>
+                                <option value="">Select bill type</option>
+                                <option v-for="utility in utilities.data" :key="utility.id" :value="utility.id">
+                                    {{ utility.name }}
+                                </option>
+                            </select>
                         </div>
 
                         <!-- Notes -->
-                        <div class="mb-4 col-span-1 md:col-span-2"> <!-- Span across both columns -->
+                        <div class="mb-4">
                             <label for="notes" class="block text-sm font-medium text-gray-700">Notes (optional)</label>
                             <textarea
                                 id="notes"
