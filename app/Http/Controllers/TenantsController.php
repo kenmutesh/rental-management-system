@@ -15,12 +15,11 @@ class TenantsController extends Controller
     public function index(Request $request)
     {
         $query = Tenants::query();
-        $this->applySearch($query, $request->search);
 
-        $tenants = $query->paginate(10);
+        $tenants = $this->applySearch($query, $request->search);
 
         return Inertia::render('Tenants/Index', [
-            'tenants' => $tenants,
+            'tenants' => $tenants->paginate(10),
             'search' => $request->search,
             'page' => $request->page,
         ]);
@@ -30,9 +29,14 @@ class TenantsController extends Controller
 
     private function applySearch($query, $search)
     {
-        $query->when($search, function ($query, $search) {
-            $query->where('name', 'like', '%' . $search . '%');
-        });
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                    ->orWhere('phone', 'like', '%' . $search . '%');
+            });
+        }
+
+        return $query;
     }
 
 

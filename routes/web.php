@@ -56,6 +56,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('communication', [CommunicationsController::class, 'index'])->name('communication.index');
     Route::get('communication/create', [CommunicationsController::class, 'create'])->name('communication.create');
+    Route::post('communication/single', [CommunicationsController::class, 'single'])->name('communication.single');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

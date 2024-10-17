@@ -3,21 +3,25 @@ import { Head, Link, usePage, router } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 import { AcademicCapIcon, CashIcon, DocumentTextIcon, PlusIcon } from '@heroicons/vue/outline';
 
+// Tenants summary data
 const tenantsSummary = ref({
     totalTenants: 100,
     totalBalance: 5000,
     defaultLeases: 5,
 });
 
-const { tenants, search, page } = usePage().props;
+// Get props from usePage
+const { search, page, tenants: propsTenants } = usePage().props;
 
+// Set initial values for searchQuery and pageNumber
 const pageNumber = ref(page || 1);
-let searchQuery = ref(search || '');
+const searchQuery = ref(search || '');
 
+// Conditionally use ref or props for tenants
+const tenants = ref(searchQuery.value ? [] : propsTenants);
 
-let tenantUrl = computed(() => {
+const tenantUrl = computed(() => {
     let url = new URL(route('tenants.index'));
-
     url.searchParams.append('page', pageNumber.value);
 
     if (searchQuery.value) {
@@ -27,15 +31,21 @@ let tenantUrl = computed(() => {
     return url;
 });
 
-    watch( ()  => tenantUrl.value, (updatedUrl) => {
-        router.replace(updatedUrl, {
-            preserveScroll: true,
-            preserveState: true,
-            replace: true
-        })
+// Watch for changes in tenantUrl and fetch tenants
+watch(() => tenantUrl.value, (updatedUrl) => {
+    router.replace(updatedUrl, {
+        preserveScroll: true,
+        preserveState: true,
+        replace: true,
+        method: 'get',
+        onSuccess: (page) => {
+            tenants.value = page.props.tenants;
+        }
     });
+});
 
 </script>
+
 
 <template>
     <Head title="Tenants" />

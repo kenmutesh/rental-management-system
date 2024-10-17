@@ -5,24 +5,15 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/outline'; // P
 import { ChatAlt2Icon, DatabaseIcon } from '@heroicons/vue/outline'; // SMS Balance and Sent Messages Icons
 
 const { balance } = usePage().props;
+const { messages } = usePage().props;
 
-const messages = ref([
-    { id: 1, recipient: "John Doe", message: "Hello!", date: "2024-01-10" },
-    { id: 2, recipient: "Jane Smith", message: "Hi there!", date: "2024-01-09" },
-    { id: 3, recipient: "Chris Johnson", message: "Good Morning!", date: "2024-01-08" },
-    { id: 4, recipient: "Anna Brown", message: "How are you?", date: "2024-01-07" },
-    { id: 5, recipient: "Sam Wilson", message: "See you soon!", date: "2024-01-06" }
-]);
-
-const filteredMessages = ref([...messages.value]);
 
 const fromDate = ref('');
 const toDate = ref('');
 
 const currentPage = ref(1);
 const perPage = ref(5);
-const totalMessages = ref(messages.value.length);
-const totalPages = computed(() => Math.ceil(totalMessages.value / perPage.value));
+
 
 function goToPage(page) {
     currentPage.value = page;
@@ -33,19 +24,7 @@ watch([fromDate, toDate], () => {
 });
 
 function filterMessages() {
-    if (!fromDate.value && !toDate.value) {
-        filteredMessages.value = messages.value;
-    } else {
-        filteredMessages.value = messages.value.filter((message) => {
-            const messageDate = new Date(message.date);
-            const from = fromDate.value ? new Date(fromDate.value) : null;
-            const to = toDate.value ? new Date(toDate.value) : null;
 
-            return (!from || messageDate >= from) && (!to || messageDate <= to);
-        });
-    }
-    totalMessages.value = filteredMessages.value.length;
-    goToPage(1); // Reset to the first page when filters are applied
 }
 </script>
 
@@ -83,7 +62,7 @@ function filterMessages() {
             </div>
 
             <!-- Grid Layout for Filter and Table -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
                 <!-- Filter Section (Left Column) -->
                 <div class="bg-white shadow rounded-lg p-6 lg:col-span-1">
                     <h3 class="text-lg font-semibold mb-4">Filter by Date</h3>
@@ -100,10 +79,13 @@ function filterMessages() {
                 </div>
 
                 <!-- Sent Messages Table (Right Column) -->
-                <div class="bg-white shadow overflow-hidden rounded-lg lg:col-span-2">
+                <div class="bg-white shadow overflow-hidden rounded-lg lg:col-span-3">
                     <table class="min-w-full">
                         <thead class="bg-gray-50">
                             <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                                    #
+                                </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Recipient
                                 </th>
@@ -111,15 +93,28 @@ function filterMessages() {
                                     Message
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Status
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Date Sent
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Action
                                 </th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            <tr v-for="message in filteredMessages" :key="message.id">
-                                <td class="px-6 py-4 whitespace-nowrap">{{ message.recipient }}</td>
+                            <tr v-for="(message, index) in messages.data" :key="message.id">
+                                <td class="px-6 py-4 whitespace-nowrap">{{ index + 1 }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">{{ message.name }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">{{ message.message }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ message.date }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-sm font-medium
+                                        {{ message.status === 'Success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                        {{ message.status === 'Success' ? 'Success' : 'Failed' }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">{{ message.created_at }}</td>
                             </tr>
                         </tbody>
                     </table>

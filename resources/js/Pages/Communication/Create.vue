@@ -2,34 +2,43 @@
 import { computed, ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
 
-
 const message = ref('');
 const selectedTenants = ref([]);
 const tenantSearch = ref('');
 const selectedTemplate = ref(null);
 const messageTemplate = ref('');
-const filteredTenants = ref([]);
+
+const tenants = ref([]);
 
 const templates = ref([
     { id: 1, content: "Hello, your rent is due." },
     { id: 2, content: "Reminder: Meeting tomorrow at 10 AM." }
 ]);
 
+// Compute tenant search URL
 let tenantUrl = computed(() => {
-   let url = new URL(route("communication.create"));
+    let url = new URL(route("communication.create"));
 
-   if(tenantSearch.value){
-        url.searchParams.append("search", tenantSearch.value);
+    if (tenantSearch.value) {
+        url.searchParams.append("search", tenantSearch.value?.toString() || '');
         return url.toString();
-   }
+    }
+    return url.toString();
 });
 
-watch (() => tenantUrl.value, (newValue) => {
-    router.visit(newValue, {
-        preserveScroll: true,
-        preserveState: true,
-        replace: true
-    })
+// Watch for URL changes only if there's a search query
+watch(() => tenantUrl.value, (newValue) => {
+    if (tenantSearch.value) { // Only fetch tenants if there is a search query
+        router.visit(newValue, {
+            preserveScroll: true,
+            preserveState: true,
+            replace: true,
+            method: 'get',
+            onSuccess: (page) => {
+                tenants.value = page.props.tenants;
+            }
+        });
+    }
 });
 
 function selectTemplate(template) {
@@ -37,47 +46,95 @@ function selectTemplate(template) {
     message.value = template.content;
 }
 
+function addOrRemoveTenant(tenant) {
+    const index = selectedTenants.value.findIndex(t => t.id === tenant.id);
 
-function sendSingleMessage() {
-    // Logic to send a message to the selected tenant(s)
-    if (selectedTenants.value.length > 0) {
-        console.log("Sending message to tenants:", selectedTenants.value);
-        console.log("Message content:", message.value);
+    if (index === -1) {
+        selectedTenants.value.push(tenant);
+        tenantSearch.value = '';
+        tenants.value = [tenant];
     } else {
-        alert("Please select at least one tenant.");
+        selectedTenants.value.splice(index, 1);
+        if (selectedTenants.value.length === 0) {
+            tenants.value = [];
+        }
     }
 }
 
+function formatPhoneNumber(phone) {
+    if (phone.startsWith('0')) {
+        phone = '254' + phone.slice(1);
+    }
+    else if (phone.startsWith('7') || phone.startsWith('1')) {
+        phone = '254' + phone;
+    }
 
+    if (phone.length !== 12) {
+        throw new Error('Phone number must be 12 characters long after formatting.');
+    }
 
+    return phone;
+}
+
+function sendSingleMessage() {
+    if (selectedTenants.value.length < 1) {
+        alert("Please select at least one tenant");
+    } else if (!message.value) {
+        alert("Please enter a message to proceed");
+    } else {
+        try {
+            const formattedTenants = selectedTenants.value.map(tenant => {
+                const formattedPhone = formatPhoneNumber(tenant.phone);
+                return {
+                    user_id: tenant.id,
+                    phone: formattedPhone
+                };
+            });
+
+            // Submit the form using Inertia
+            router.post(route('communication.single'), {
+                tenants: formattedTenants,
+                message: message.value,
+            }, {
+                onSuccess: () => {
+                    selectedTenants.value = [];
+                    message.value = '';
+                    alert("Message sent successfully!");
+                },
+                onError: (errors) => {
+                    console.error("Error sending message:", errors);
+                }
+            });
+
+        } catch (error) {
+            alert(error.message);
+        }
+    }
+}
+
+// Create a new message template
 function createMessageTemplate() {
     if (messageTemplate.value) {
         templates.value.push({ id: templates.value.length + 1, content: messageTemplate.value });
-        messageTemplate.value = ''; // Clear the template input after saving
+        messageTemplate.value = '';
     }
 }
 
-function addOrRemoveTenant(tenant) {
-    const index = selectedTenants.value.findIndex(t => t.id === tenant.id);
-    if (index === -1) {
-        selectedTenants.value.push(tenant);  // Add tenant if not selected
-    } else {
-        selectedTenants.value.splice(index, 1);  // Remove tenant if already selected
-    }
-}
-
+// Send a bulk message to selected tenants
 function sendBulkMessage() {
-    // Send bulk message to all tenants
-    axios.post('/api/messages/bulk', {
-        message: message.value,
-        tenants: selectedTenants.value.map(tenant => tenant.id)
-    }).then(response => {
-        console.log('Bulk message sent:', response.data);
-    }).catch(error => {
-        console.error('Error sending bulk message:', error);
-    });
+    if (message.value && selectedTenants.value.length > 0) {
+        axios.post('/api/messages/bulk', {
+            message: message.value,
+            tenants: selectedTenants.value.map(tenant => tenant.id)
+        }).then(response => {
+            console.log('Bulk message sent:', response.data);
+        }).catch(error => {
+            console.error('Error sending bulk message:', error);
+        });
+    } else {
+        alert('Please select tenants and provide a message.');
+    }
 }
-
 
 </script>
 
@@ -86,13 +143,10 @@ function sendBulkMessage() {
         <div class="container mx-auto px-4 py-6">
             <h1 class="text-2xl font-semibold mb-6">Send Messages</h1>
 
-            <!-- Flex container for two-column layout on large screens -->
             <div class="flex flex-col lg:flex-row gap-6">
-                <!-- Single Message Section -->
                 <div class="flex-1 bg-white shadow rounded-lg p-6 mb-6 lg:mb-0">
                     <h2 class="text-lg font-semibold mb-4">Send Single Message</h2>
 
-                    <!-- Search Tenant Section -->
                     <input
                         type="text"
                         v-model="tenantSearch"
@@ -100,9 +154,9 @@ function sendBulkMessage() {
                         class="block w-full border border-gray-300 rounded-md mb-4"
                         @input="searchTenants"
                     />
-                    <ul v-if="filteredTenants.length > 0" class="mb-4">
+                    <ul v-if="tenants.length > 0" class="mb-4">
                         <li
-                            v-for="tenant in filteredTenants"
+                            v-for="tenant in tenants"
                             :key="tenant.id"
                             @click="addOrRemoveTenant(tenant)"
                             class="cursor-pointer p-2 bg-gray-100 mb-2 rounded-md hover:bg-gray-200"
