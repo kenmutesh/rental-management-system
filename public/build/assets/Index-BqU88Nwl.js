@@ -1,1 +1,0 @@
-import{p as e,f as a,a as o,F as c,o as s}from"./app-C2dyUFtU.js";import{_ as r}from"./_plugin-vue_export-helper-DlAUqK2U.js";const p={};function _(l,m){const t=e("Head"),n=e("app-layout");return s(),a(c,null,[o(t,{title:"Expenses"}),o(n)],64)}const u=r(p,[["render",_]]);export{u as default};

@@ -94,15 +94,19 @@ class TenantsController extends Controller
             $unit->occupied_by = $tenant->id;
             $unit->save();
 
-            $this->sendSmsToTenant($request, 'welcome');
+            // $this->sendSmsToTenant($request, 'welcome');
 
             DB::commit();
 
-            return to_route('tenants.index')->with('success', 'Tenant created successful');
+            session()->flash('toast', ['type' => 'success', 'message' => 'Tenant created successfully']);
+
+            return to_route('tenants.index');   
         } catch (\Exception $e) {
             DB::rollBack();
+            session()->flash('toast', ['type' => 'error', 'message' => 'Failed to create tenant']);
 
-            return to_route('tenants.create')->with('error', 'Failed to create tenant');
+            return to_route('tenants.create');
+
         }
 
     }

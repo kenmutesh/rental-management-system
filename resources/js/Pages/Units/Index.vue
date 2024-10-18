@@ -78,5 +78,9 @@ const { units, totalOccupied, totalUnits } = usePage().props;
                 </tbody>
             </table>
         </div>
+        <div class="mt-4">
+
+                <app-pagination :pagination="units.meta" />
+            </div>
     </app-layout>
 </template>

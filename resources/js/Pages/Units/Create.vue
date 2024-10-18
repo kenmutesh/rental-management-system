@@ -1,56 +1,61 @@
 <script setup>
 import { ref, defineProps } from 'vue';
-import { Head, Link, usePage } from '@inertiajs/vue3';
+import { Head, Link, usePage, useForm } from '@inertiajs/vue3';
 
 const props = defineProps({
     unit: Object,
 });
 
 const { properties, utilities } = usePage().props;
-const unit = ref({
-    id: null,
-    property_id: '',
-    name: '',
-    rentAmount: '',
-    taxRate: null,
-    recurringBills: [],
-    notes: '',
+
+const isSubmitting = ref(false);
+const isEditing = ref(!!props.unit); // Check if it's editing mode based on the passed prop
+
+// Initialize form with the unit data if editing, otherwise with defaults
+const form = useForm({
+    id: props.unit ? props.unit.id : null,
+    property_id: props.unit ? props.unit.property_id : '',
+    name: props.unit ? props.unit.name : '',
+    rentAmount: props.unit ? props.unit.rentAmount : '',
+    taxRate: props.unit ? props.unit.taxRate : null,
+    recurringBills: props.unit ? props.unit.recurringBills : [],
+    notes: props.unit ? props.unit.notes : '',
 });
 
 // To keep track of already selected bill types
-const selectedBillTypes = ref(new Set());
+const selectedBillTypes = ref(new Set(props.unit?.recurringBills.map(bill => bill.type) || []));
 const newBillType = ref(''); // Ref to hold the currently selected bill type
 
-if (props.unit) {
-    Object.assign(unit.value, props.unit.data);
-}
-
 // Function to handle form submission
-const saveUnit = async () => {
-    const url = unit.value.id ? `/units/${unit.value.id}` : '/units';
-    const method = unit.value.id ? 'put' : 'post';
-
-    // Only send bill types for recurring bills
-    const billsToSend = unit.value.recurringBills.map(bill => ({
-        type: bill.type,
-        name: bill.name, // Include the bill name
-    }));
-    const payload = { ...unit.value, recurringBills: billsToSend };
+const submitForm = async () => {
+    isSubmitting.value = true;
+    form.clearErrors();
 
     try {
-        await axios[method](url, payload);
-        // Handle success (e.g., redirect or show a success message)
+        if (isEditing.value) {
+            await form.put(route('units.update', form.id));
+        } else {
+            await form.post(route('units.store'));
+        }
     } catch (error) {
-        console.error('Error saving unit:', error);
-        // Handle error (e.g., show an error message)
+        // Safeguard against undefined error.response or error.response.data
+        if (error.response && error.response.data && error.response.data.errors) {
+            form.setError(error.response.data.errors);
+        } else {
+            console.error('An unexpected error occurred:', error);
+        }
+    } finally {
+        isSubmitting.value = false;
     }
 };
+
+
 
 // Function to add a bill
 const addBill = (billType) => {
     const utility = utilities.data.find(u => u.id === billType);
     if (billType && utility && !selectedBillTypes.value.has(billType)) {
-        unit.value.recurringBills.push({ type: billType, name: utility.name });
+        form.recurringBills.push({ type: billType, name: utility.name });
         selectedBillTypes.value.add(billType); // Track selected bill type
         newBillType.value = ''; // Reset the select input
     }
@@ -58,8 +63,8 @@ const addBill = (billType) => {
 
 // Function to remove a bill
 const removeBill = (index) => {
-    const billType = unit.value.recurringBills[index].type;
-    unit.value.recurringBills.splice(index, 1);
+    const billType = form.recurringBills[index].type;
+    form.recurringBills.splice(index, 1);
     selectedBillTypes.value.delete(billType); // Remove from selected types
 };
 </script>
@@ -70,19 +75,19 @@ const removeBill = (index) => {
         <div class="max-w-6xl mx-auto py-12">
             <div class="bg-white shadow-md rounded-lg p-6">
                 <h1 class="text-2xl font-semibold mb-4">
-                    {{ unit.id ? 'Edit Unit' : 'Create Unit' }}
+                    {{ form.id ? 'Edit Unit' : 'Create Unit' }}
                 </h1>
-                <form @submit.prevent="saveUnit">
+                <form @submit.prevent="submitForm">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <!-- Select Property -->
                         <div class="mb-4">
                             <label for="propertyId" class="block text-sm font-medium text-gray-700">Select Property</label>
                             <select
                                 id="property"
-                                v-model="unit.property_id"
+                                v-model="form.property_id"
                                 class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
                                 required
-                                :disabled="unit.id !== null"
+                                :disabled="form.id !== null"
                             >
                                 <option disabled value="">Select Property</option>
                                 <option v-for="property in properties.data" :key="property.id" :value="property.id">
@@ -97,8 +102,8 @@ const removeBill = (index) => {
                             <input
                                 type="text"
                                 id="unitName"
-                                :disabled="unit.property_id == ''"
-                                v-model="unit.name"
+                                :disabled="form.property_id == ''"
+                                v-model="form.name"
                                 class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                                 required
                             />
@@ -110,7 +115,7 @@ const removeBill = (index) => {
                             <input
                                 type="number"
                                 id="rentAmount"
-                                v-model="unit.rentAmount"
+                                v-model="form.rentAmount"
                                 class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                                 required
                             />
@@ -122,7 +127,7 @@ const removeBill = (index) => {
                             <input
                                 type="number"
                                 id="taxRate"
-                                v-model="unit.taxRate"
+                                v-model="form.taxRate"
                                 placeholder="e.g. 7.5 for residential or 16 for commercial"
                                 class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                             />
@@ -134,7 +139,7 @@ const removeBill = (index) => {
                         <!-- Other Recurring Bills -->
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700">Other Recurring Bills (optional)</label>
-                            <div v-for="(bill, index) in unit.recurringBills" :key="index" class="flex items-center space-x-2 mb-2">
+                            <div v-for="(bill, index) in form.recurringBills" :key="index" class="flex items-center space-x-2 mb-2">
                                 <span class="bg-blue-500 text-white text-xs font-medium mr-2 px-2.5 py-0.5 rounded">
                                     {{ bill.name }}
                                 </span>
@@ -159,7 +164,7 @@ const removeBill = (index) => {
                             <label for="notes" class="block text-sm font-medium text-gray-700">Notes (optional)</label>
                             <textarea
                                 id="notes"
-                                v-model="unit.notes"
+                                v-model="form.notes"
                                 rows="3"
                                 class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                             ></textarea>
@@ -170,8 +175,9 @@ const removeBill = (index) => {
                         <button
                             type="submit"
                             class="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
+                            :disabled="isSubmitting"
                         >
-                            {{ unit.id ? 'Update Unit' : 'Create Unit' }}
+                            {{ form.id ? 'Update Unit' : 'Create Unit' }}
                         </button>
                     </div>
                 </form>

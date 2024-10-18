@@ -6,7 +6,7 @@ import { onMounted } from 'vue';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-
+import toast from "@/Stores/toast";
 library.add(faArrowUp, faArrowDown);
 
 onMounted(() => {
@@ -118,7 +118,6 @@ onMounted(() => {
               </div>
             </div>
           </div>
-
           <!-- Card 2 -->
           <div class="card bg-white shadow-md rounded-lg p-6">
             <div class="flex items-center">

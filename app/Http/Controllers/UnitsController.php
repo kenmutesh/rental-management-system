@@ -18,7 +18,7 @@ class UnitsController extends Controller
      */
     public function index(Request $request)
     {
-        $units = Units::all();
+        $units = Units::paginate(10);
         $totalUnits = $units->count();
         $totalOccupied = $units->whereNotNull('occupied_by')->count();
 
@@ -80,15 +80,8 @@ class UnitsController extends Controller
             }
         }
 
-        $units = Units::all();
-        $totalUnits = $units->count();
-        $totalOccupied = $units->whereNull('occupied_by')->count();
 
-        return to_route('units.index', [
-            'units' => UnitsResource::collection($units),
-            'totalUnits' => $totalUnits,
-            'totalOccupied' => $totalOccupied
-        ]);
+        return to_route('units.index');
     }
 
 
