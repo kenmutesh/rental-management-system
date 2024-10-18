@@ -20,7 +20,7 @@ class UnitsController extends Controller
     {
         $units = Units::all();
         $totalUnits = $units->count();
-        $totalOccupied = $units->whereNull('occupied_by')->count();
+        $totalOccupied = $units->whereNotNull('occupied_by')->count();
 
         return Inertia::render('Units/Index', [
             'units' => UnitsResource::collection($units),

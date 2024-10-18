@@ -7,12 +7,14 @@ use App\Http\Resources\TenantsResource;
 use App\Models\Property;
 use App\Models\Tenants;
 use App\Models\Units;
+use App\SmsTenant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class TenantsController extends Controller
 {
+    use SmsTenant;
     /**
      * Display a listing of the resource.
      */
@@ -91,6 +93,8 @@ class TenantsController extends Controller
 
             $unit->occupied_by = $tenant->id;
             $unit->save();
+
+            $this->sendSmsToTenant($request, 'welcome');
 
             DB::commit();
 
