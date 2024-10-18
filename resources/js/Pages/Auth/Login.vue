@@ -17,8 +17,8 @@ defineProps({
 });
 
 const form = useForm({
-    email: '',
-    password: '',
+    email: 'kenmutesh901@gmail.com', 
+    password: '12345678',
     remember: false,
 });
 
@@ -51,6 +51,7 @@ const submit = () => {
                         <TextInput
                             id="email"
                             type="email"
+                            :value="'kenmutesh901@gmail.com'"
                             class="mt-1 block w-full"
                             v-model="form.email"
                             required
@@ -65,6 +66,7 @@ const submit = () => {
                         <TextInput
                             id="password"
                             type="password"
+                            value="12345678"
                             class="mt-1 block w-full"
                             v-model="form.password"
                             required
