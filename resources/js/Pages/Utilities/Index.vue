@@ -26,7 +26,7 @@ const saveUtility = async () => {
             await form.post(route('utilities.store'));
         }
         utilities.value = usePage().props.utilities;
-        resetForm(); 
+        resetForm();
     } catch (error) {
         console.error(error);
         form.errors = error.response.data.errors || {};
@@ -50,6 +50,9 @@ const editUtility = (utility) => {
     isEditing.value = true;
 };
 
+const deleteUtility  = async (utility) => {
+    await form.post(route('utilities.delete', utility.id));
+};
 </script>
 
 
@@ -146,12 +149,18 @@ const editUtility = (utility) => {
                                 <td class="px-4 py-2 border">{{ utility.status }}</td>
                                 <td class="px-4 py-2 border">{{ utility.fee_type }}</td>
                                 <td class="px-4 py-2 border">KES {{ utility.price }}</td>
-                                <td class="px-4 py-2 border">
+                                <td class="px-4 py-2 border flex gap-3">
                                     <button
                                         @click="editUtility(utility)"
                                         class="text-blue-500 hover:text-blue-700"
                                     >
                                         Edit
+                                    </button>
+                                    <button
+                                        @click="deleteUtility(utility)"
+                                        class="text-red-500 hover:text-red-700"
+                                    >
+                                        Delete
                                     </button>
                                 </td>
                             </tr>

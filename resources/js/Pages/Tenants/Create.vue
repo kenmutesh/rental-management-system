@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch } from 'vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, usePage } from '@inertiajs/vue3';
 import { PlusIcon } from '@heroicons/vue/outline';
 
 const form = useForm({
@@ -15,14 +15,38 @@ const form = useForm({
     unit_id: '',
 });
 
+const errors = ref({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    property_id: '',
+    unit_id: '',
+    leaseStartDate: ''
+});
 
-const props = defineProps(['properties']);
+
+const validateForm = () => {
+    errors.value.firstName = form.firstName ? '' : 'First name is required';
+    errors.value.lastName = form.lastName ? '' : 'Last name is required';
+    errors.value.email = form.email ? '' : 'Email is required';
+    errors.value.phone = form.phone ? '' : 'Phone is required';
+    errors.value.property_id = form.property_id ? '' : 'Property is required';
+    errors.value.unit_id = form.unit_id ? '' : 'Unit is required';
+    errors.value.leaseStartDate = form.leaseStartDate ? '' : 'Lease start date is required';
+
+
+    return Object.values(errors.value).every(error => error === '');
+};
+
+
+const { properties } = usePage().props;
 
 const units = ref([]);
 
 watch(() => form.property_id, (newVal) => {
     if (newVal) {
-        const selectedProperty = props.properties.find(p => p.id === newVal);
+        const selectedProperty = properties.data.find(p => p.id === newVal);
         units.value = selectedProperty ? selectedProperty.units : [];
         form.unit_id = '';
     } else {
@@ -30,7 +54,12 @@ watch(() => form.property_id, (newVal) => {
     }
 });
 
+
 const submitForm = () => {
+    if (!validateForm()) {
+        return;
+    }
+
     form.post('/tenants/store', {
         onFinish: () => {
             form.reset();
@@ -115,7 +144,7 @@ const submitForm = () => {
                                 required
                             >
                                 <option value="">Select Property</option>
-                                <option v-for="property in props.properties" :key="property.id" :value="property.id">
+                                <option v-for="property in properties.data" :key="property.id" :value="property.id">
                                     {{ property.propertyName }}
                                 </option>
                             </select>
@@ -133,11 +162,17 @@ const submitForm = () => {
                                 required
                                 :disabled="units.length === 0"
                             >
-                                <option value="">Select Unit</option>
-                                <option v-for="unit in units" :key="unit.id" :value="unit.id">
-                                    {{ unit.name }}
+                                <option disabled value="">Select Unit</option>
+                                <option
+                                    v-for="unit in units"
+                                    :key="unit.id"
+                                    :value="unit.id"
+                                    :disabled="unit.status === 'occupied'"
+                                >
+                                    {{ unit.name }} - {{ unit.status === 'occupied' ? 'occupied' : unit.rentAmount }}
                                 </option>
                             </select>
+
                             <span v-if="form.errors.unit_id" class="text-red-500 text-sm">{{ form.errors.unit_id }}</span>
                         </div>
 

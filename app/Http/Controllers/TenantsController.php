@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\TenantRequest;
+use App\Http\Resources\PropertyResource;
 use App\Http\Resources\TenantsResource;
 use App\Models\Property;
 use App\Models\Tenants;
@@ -61,7 +62,7 @@ class TenantsController extends Controller
                     ->get();
 
         return Inertia::render('Tenants/Create', [
-            'properties' => $properties
+            'properties' => PropertyResource::collection($properties)
         ]);
     }
 
@@ -100,7 +101,7 @@ class TenantsController extends Controller
 
             session()->flash('toast', ['type' => 'success', 'message' => 'Tenant created successfully']);
 
-            return to_route('tenants.index');   
+            return to_route('tenants.index');
         } catch (\Exception $e) {
             DB::rollBack();
             session()->flash('toast', ['type' => 'error', 'message' => 'Failed to create tenant']);

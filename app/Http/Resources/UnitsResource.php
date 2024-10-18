@@ -19,7 +19,7 @@ class UnitsResource extends JsonResource
             'name' => $this->name,
             'property_id' => $this->property->id,
             'propertyName' => $this->property->propertyName ?? '',
-            'status' => $this->occupied_by ? 'Occupied' : 'Available',
+            'status' => $this->occupied_by ? 'occupied' : 'Available',
             'rentAmount' => $this->rentAmount
         ];
     }

@@ -20,6 +20,7 @@ class PropertyResource extends JsonResource
             'totalUnits'        => $this->totalUnits,
             'vacancies'         => $this->getVacancies(),
             'city'              => $this->city,
+            'units'             => UnitsResource::collection($this->units) ?? '',
             'waterRate'         => $this->waterRate,
             'electricityRate'   => $this->electricityRate,
             'penaltyPercentage' => $this->penaltyPercentage,

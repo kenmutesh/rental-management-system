@@ -17,6 +17,7 @@ return new class extends Migration
             $table->decimal('price', 10, 2);
             $table->boolean('status')->default(false);
             $table->enum('fee_type', ['one_time', 'monthly'])->default('monthly');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

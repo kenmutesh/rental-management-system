@@ -64,7 +64,7 @@ const { units, totalOccupied, totalUnits } = usePage().props;
                         <td class="py-4 px-6 text-sm text-gray-700">{{ index + 1 }}</td>
                         <td class="py-4 px-6 text-sm text-gray-700">{{ unit.name }}</td>
                         <td class="py-4 px-6 text-sm text-gray-700">{{ unit.status }}</td>
-                        <td class="py-4 px-6 text-sm text-gray-700">{{ unit.price }}</td>
+                        <td class="py-4 px-6 text-sm text-gray-700">{{ unit.rentAmount }}</td>
                         <td class="py-4 px-6">
                             <Link
                                 :href="`/units/edit/${unit.id}`"

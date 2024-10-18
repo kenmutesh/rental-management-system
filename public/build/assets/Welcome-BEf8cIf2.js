@@ -1,1 +1,0 @@
-import{p as n,f as t,d as r,a as s,o as a}from"./app-N2Y-DDi7.js";import{_ as p}from"./_plugin-vue_export-helper-DlAUqK2U.js";const c={};function _(m,e){const o=n("app-spinner");return a(),t("div",null,[e[0]||(e[0]=r(" test ")),s(o)])}const d=p(c,[["render",_]]);export{d as default};

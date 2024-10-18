@@ -88,8 +88,10 @@ class UtilitiesController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Utilities $utilities)
+    public function delete(Utilities $utility)
     {
-        //
+        $utility->delete();
+
+        return to_route('utilities.index')->with('success', 'Utility deleted successfully');
     }
 }
