@@ -47,6 +47,11 @@
     "file": "assets/_plugin-vue_export-helper-DlAUqK2U.js",
     "name": "_plugin-vue_export-helper"
   },
+  "resources/css/app.css": {
+    "file": "assets/app-e2r_xn5O.css",
+    "src": "resources/css/app.css",
+    "isEntry": true
+  },
   "resources/images/login.jpg": {
     "file": "assets/login-nBDHx_Wt.jpg",
     "src": "resources/images/login.jpg"
