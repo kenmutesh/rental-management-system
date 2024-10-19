@@ -8,6 +8,8 @@ const { invoices } = usePage().props;
 
 const fromDate = ref('');
 const toDate = ref('');
+const dropdowns = ref({});
+
 
 const currentPage = ref(1);
 const perPage = ref(5);
@@ -23,6 +25,14 @@ watch([fromDate, toDate], () => {
 
 function filterInvoices() {
 
+}
+function toggleDropdown(id) {
+    dropdowns.value[id] = !dropdowns.value[id];
+}
+
+// Function to check if the dropdown is open for the given invoice
+function isDropdownOpen(id) {
+    return dropdowns.value[id] || false;
 }
 </script>
 
@@ -77,13 +87,13 @@ function filterInvoices() {
                                     Recipient
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Message
+                                    Amount
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Status
+                                    Unit
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Date Sent
+                                    Invoice date
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Action
@@ -93,34 +103,35 @@ function filterInvoices() {
                         <tbody class="bg-white divide-y divide-gray-200">
                             <tr v-for="(invoice, index) in invoices.data" :key="invoice.id">
                                 <td class="px-6 py-4 whitespace-nowrap">{{ index + 1 }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ invoice.amount    }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ invoice.message }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ invoice.date }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">{{ invoice.tenantName }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">{{ invoice.amount }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">{{ invoice.unit }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">{{ invoice.month }}</td>
+                                 <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="relative inline-block text-left">
+                                        <button @click="toggleDropdown(invoice.id)" type="button" class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none">
+                                            Actions
+                                            <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                                <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06-.02L10 10.88l3.71-3.69a.75.75 0 111.06 1.06l-4 4a.75.75 0 01-1.06 0l-4-4a.75.75 0 01-.02-1.06z" clip-rule="evenodd" />
+                                            </svg>
+                                        </button>
+                                        <div v-if="isDropdownOpen(invoice.id)" class="origin-top-right absolute right-0 mt-2 w-44 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+                                            <div class="py-1">
+                                                <a href="#" @click="exportXlsx(invoice.id)" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Export XLSX</a>
+                                                <a href="#" @click="generateInvoice(invoice.id)" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Generate Invoice</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
-                </div>
-            </div>
 
-            <!-- Pagination Controls -->
-            <div class="flex justify-between items-center mt-4">
-                <div>
-                    <label for="rowsPerPage" class="text-sm text-gray-700">Rows per page:</label>
-                    <select id="rowsPerPage" v-model="perPage" class="ml-2 text-sm border-gray-300 rounded-md">
-                        <option value="5">5</option>
-                        <option value="10">10</option>
-                        <option value="30">30</option>
-                    </select>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1" class="disabled:opacity-50">
-                        <ChevronLeftIcon class="h-5 w-5" />
-                    </button>
-                    <span class="text-sm">{{ currentPage }} / {{ totalPages }}</span>
-                    <button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages" class="disabled:opacity-50">
-                        <ChevronRightIcon class="h-5 w-5" />
-                    </button>
-                </div>
+                 <div class="mt-4">
+
+                <app-pagination :pagination="invoices.meta" />
+            </div>
+            </div>
             </div>
         </div>
     </app-layout>
