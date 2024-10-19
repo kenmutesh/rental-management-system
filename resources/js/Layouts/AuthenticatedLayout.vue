@@ -38,7 +38,7 @@ onMounted(() => {
                     'translate-x-0': isSidebarOpen,
                     '-translate-x-full': !isSidebarOpen
                 }"
-                class="fixed inset-y-0 left-0 w-64 bg-blue-500 shadow-md transform transition-transform duration-300 ease-in-out z-50 sm:relative sm:translate-x-0"
+                class="fixed sticky top-0 z-10 inset-y-0 left-0 w-64 bg-blue-500 shadow-md transform transition-transform duration-300 ease-in-out z-50 sm:relative sm:translate-x-0"
             >
                 <div class="p-2"> <!-- Reduced padding for a more compact look -->
                     <!-- Logo -->

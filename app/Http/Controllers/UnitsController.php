@@ -50,7 +50,7 @@ class UnitsController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string',
+            'name' => 'required|string|unique:units,name',
             'property_id' => 'required|exists:properties,id',
             'rentAmount' => 'required|numeric',
             'notes' => 'nullable|string',
@@ -81,7 +81,7 @@ class UnitsController extends Controller
         }
 
 
-        return to_route('units.index');
+        return to_route('units.index')->with('message', 'The Unit has been created successfully');
     }
 
 

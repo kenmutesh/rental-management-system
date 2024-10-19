@@ -68,7 +68,7 @@ class PropertyController extends Controller
 
         return to_route('properties.index', [
             'properties' => Property::all(),
-        ])->with('success', 'Property created successfully');
+        ])->with('message', 'Property created successfully');
     }
 
     /**

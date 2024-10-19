@@ -93,15 +93,9 @@ function filterInvoices() {
                         <tbody class="bg-white divide-y divide-gray-200">
                             <tr v-for="(invoice, index) in invoices.data" :key="invoice.id">
                                 <td class="px-6 py-4 whitespace-nowrap">{{ index + 1 }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ message.name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ message.message }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-sm font-medium
-                                        {{ message.status === 'Success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                        {{ message.status === 'Success' ? 'Success' : 'Failed' }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ message.created_at }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">{{ invoice.amount    }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">{{ invoice.message }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">{{ invoice.date }}</td>
                             </tr>
                         </tbody>
                     </table>

@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\TenantRequest;
+use App\Http\Resources\InvoiceResource;
 use App\Http\Resources\PropertyResource;
 use App\Http\Resources\TenantsResource;
+use App\Models\Invoices;
 use App\Models\Property;
 use App\Models\Tenants;
 use App\Models\Units;
@@ -111,12 +113,14 @@ class TenantsController extends Controller
     /**
      * Display the specified resource.
      */
-    public function invoices(Tenants $tenants)
+    public function invoices(Tenants $tenant)
     {
-        $invoices = [];
 
+        $invoices = Invoices::where('tenant_id', $tenant->id)->paginate(10);
+        
         return Inertia::render('Tenants/Invoices', [
-            'invoices' => $invoices
+            'tenant' => $tenant,
+            'invoices' => InvoiceResource::collection($invoices)
         ]);
     }
 

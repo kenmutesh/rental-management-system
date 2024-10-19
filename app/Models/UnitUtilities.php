@@ -13,4 +13,9 @@ class UnitUtilities extends Model
             "utility_id",
             "unit_id",
     ];
+
+
+    public function utility() {
+        return $this->belongsTo(Utilities::class, 'utility_id');
+    }
 }

@@ -81,7 +81,7 @@ class UtilitiesController extends Controller
 
         return Inertia::render('Utilities/Index', [
             'utilities' => UtilityResource::collection($utilities),
-        ])->with('success', 'Utility updated successfully');
+        ])->with('message', 'Utility updated successfully');
     }
 
 
