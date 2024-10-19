@@ -99,14 +99,10 @@ class TenantsController extends Controller
 
             DB::commit();
 
-            session()->flash('toast', ['type' => 'success', 'message' => 'Tenant created successfully']);
-
-            return to_route('tenants.index');
+            return to_route('tenants.index')->with('message', 'Tenant created successfully');
         } catch (\Exception $e) {
             DB::rollBack();
-            session()->flash('toast', ['type' => 'error', 'message' => 'Failed to create tenant']);
-
-            return to_route('tenants.create');
+            return to_route('tenants.create')->with('message', 'Error creating tenant');
 
         }
 

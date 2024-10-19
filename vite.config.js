@@ -6,7 +6,7 @@ import path from 'path';
 export default defineConfig({
     plugins: [
         laravel({
-            input: [    
+            input: [
                 'resources/css/app.css',
                 'resources/js/app.js',
             ],
@@ -27,5 +27,8 @@ export default defineConfig({
             '@': path.resolve(__dirname, './resources/js'),
             '@img': path.resolve(__dirname, './resources/images'),
         },
+    },
+    optimizeDeps: {
+        include: ['vue3-toastify'],
     },
 });

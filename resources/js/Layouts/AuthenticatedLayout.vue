@@ -1,24 +1,36 @@
 <script setup>
 import { ref } from 'vue';
 import { router } from '@inertiajs/vue3';
-import ToastList from "@/Components/ToastList.vue";
+import { toast } from 'vue3-toastify';
+import { onMounted } from 'vue';
+import { usePage } from '@inertiajs/vue3';
 
 const logout = () => {
-    router.post('/logout'); // POST request to logout endpoint
+    router.post('/logout');
 };
-// Reactive state for sidebar and navigation dropdowns
-const isSidebarOpen = ref(false);
-const showingChildren = ref(null); // To manage parent-child toggling
 
-// Function to toggle parent items
+const isSidebarOpen = ref(false);
+const showingChildren = ref(null);
+
 const toggleChildren = (index) => {
-    showingChildren.value = showingChildren.value === index ? null : index; // Toggle logic
+    showingChildren.value = showingChildren.value === index ? null : index;
 };
+
+const page = usePage();
+
+onMounted(() => {
+  if (page.props.flash.message) {
+    toast.success(page.props.flash.message, {
+      position: 'top-right',
+      autoClose: 3000,
+      theme: 'colored',
+    });
+  }
+});
 </script>
 
 <template>
     <div>
-        <ToastList />
         <div class="min-h-screen flex bg-gray-100">
             <!-- Sidebar -->
             <aside
@@ -145,6 +157,9 @@ const toggleChildren = (index) => {
                         </div>
                     </div>
                 </nav>
+                <!-- <div v-if="$page.props.flash.message" class="text-blue-600 mb-4">
+                    {{ $page.props.flash.message }}
+                </div> -->
 
                 <main class="flex-1 m-2">
                     <slot />

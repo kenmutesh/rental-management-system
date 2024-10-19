@@ -7,6 +7,9 @@ import { createApp, h } from 'vue';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 import registerGlobalComponents from './global';
 
+import Toast from 'vue3-toastify';
+import 'vue3-toastify/dist/index.css';
+
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 createInertiaApp({
@@ -18,9 +21,21 @@ createInertiaApp({
         ),
     setup({ el, App, props, plugin }) {
         const app = createApp({ render: () => h(App, props) });
+
+        app.use(Toast, {
+            position: 'top-right',
+            autoClose: 3000,
+            closeOnClick: true,
+            draggable: true,
+            pauseOnHover: true,
+            theme: 'colored',
+        });
+
         app.use(plugin)
-        .use(ZiggyVue);
+           .use(ZiggyVue);
+
         registerGlobalComponents(app);
+
         app.mount(el);
     },
     progress: {
