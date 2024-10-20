@@ -10,11 +10,6 @@ const fromDate = ref('');
 const toDate = ref('');
 const dropdowns = ref({});
 
-
-const currentPage = ref(1);
-const perPage = ref(5);
-
-
 function goToPage(page) {
     currentPage.value = page;
 }
@@ -33,6 +28,11 @@ function toggleDropdown(id) {
 // Function to check if the dropdown is open for the given invoice
 function isDropdownOpen(id) {
     return dropdowns.value[id] || false;
+}
+
+function generateInvoice(id) {
+   const url = `/tenants/invoices/${id}/view`; // Construct the URL dynamically with the invoice ID
+    window.open(url, '_blank')
 }
 </script>
 
@@ -101,30 +101,36 @@ function isDropdownOpen(id) {
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            <tr v-for="(invoice, index) in invoices.data" :key="invoice.id">
-                                <td class="px-6 py-4 whitespace-nowrap">{{ index + 1 }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ invoice.tenantName }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ invoice.amount }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ invoice.unit }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ invoice.month }}</td>
-                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="relative inline-block text-left">
-                                        <button @click="toggleDropdown(invoice.id)" type="button" class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none">
-                                            Actions
-                                            <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                                <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06-.02L10 10.88l3.71-3.69a.75.75 0 111.06 1.06l-4 4a.75.75 0 01-1.06 0l-4-4a.75.75 0 01-.02-1.06z" clip-rule="evenodd" />
-                                            </svg>
-                                        </button>
-                                        <div v-if="isDropdownOpen(invoice.id)" class="origin-top-right absolute right-0 mt-2 w-44 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
-                                            <div class="py-1">
-                                                <a href="#" @click="exportXlsx(invoice.id)" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Export XLSX</a>
-                                                <a href="#" @click="generateInvoice(invoice.id)" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Generate Invoice</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
+    <template v-if="invoices?.data && invoices.data.length > 0">
+        <tr v-for="(invoice, index) in invoices.data" :key="invoice.id">
+            <td class="px-6 py-4 whitespace-nowrap">{{ index + 1 }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">{{ invoice?.tenantName || 'N/A' }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">{{ invoice?.amount || 'N/A' }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">{{ invoice?.unit || 'N/A' }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">{{ invoice?.month || 'N/A' }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="relative inline-block text-left">
+                    <button @click="toggleDropdown(invoice.id)" type="button" class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none">
+                        Actions
+                        <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06-.02L10 10.88l3.71-3.69a.75.75 0 111.06 1.06l-4 4a.75.75 0 01-1.06 0l-4-4a.75.75 0 01-.02-1.06z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                    <div v-if="isDropdownOpen(invoice.id)" class="origin-top-right absolute right-0 mt-2 w-44 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10">
+                        <div class="py-1">
+                            <a href="#" @click="exportXlsx(invoice.id)" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Export XLSX</a>
+                            <a href="#" @click="generateInvoice(invoice.id)" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Generate Invoice</a>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </template>
+    <tr v-else>
+        <td colspan="6" class="text-center py-4">No invoices available</td>
+    </tr>
+</tbody>
+
                     </table>
 
                  <div class="mt-4">

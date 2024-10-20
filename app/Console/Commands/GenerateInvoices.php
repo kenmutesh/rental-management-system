@@ -76,7 +76,7 @@ class GenerateInvoices extends Command
         $currentYear = now()->year;
 
         $invoiceItem = new InvoiceItem();
-        $invoiceItem->invoice_id = $invoice->id;
+        $invoiceItem->invoices_id = $invoice->id;
         $invoiceItem->description = $description;
         $invoiceItem->amount = $amount;
         $invoiceItem->save();

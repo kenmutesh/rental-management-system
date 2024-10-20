@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Invoices;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -35,18 +36,30 @@ class InvoicesController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Invoices $invoices)
+    public function edit(Invoices $invoice)
     {
-        //
+
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Invoices $invoices)
+    public function show($invoice)
     {
-        //
+
+        $data['invoices'] = Invoices::where('id', $invoice)->get();
+
+        // Load the view and pass the invoice data
+        $pdf = Pdf::loadView('pdf.invoices', $data);
+
+        // Optional: Set paper size and orientation
+        $pdf->setPaper('A4', 'landscape');
+
+        // Stream the generated PDF to the browser (no attachment means open in browser)
+        return $pdf->stream('invoice.pdf', ['Attachment' => false]);
     }
+
+
 
     /**
      * Update the specified resource in storage.
