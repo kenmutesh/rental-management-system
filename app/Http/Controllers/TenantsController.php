@@ -117,7 +117,7 @@ class TenantsController extends Controller
     {
 
         $invoices = Invoices::where('tenant_id', $tenant->id)->paginate(10);
-        
+
         return Inertia::render('Tenants/Invoices', [
             'tenant' => $tenant,
             'invoices' => InvoiceResource::collection($invoices)

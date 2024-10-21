@@ -65,7 +65,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/expenses', [ExpensesController::class, 'index'])->name('expenses.index');
 
     Route::get('/backup', [SystemManagementController::class, 'index'])->name('management.backup');
-
+    Route::post('/backups/create', [SystemManagementController::class, 'create'])->name('management.backup.create');
     Route::get('invoices', [InvoicesController::class, 'index'])->name('invoices.index');
 
     Route::get('payments', [PaymentsController::class, 'index'])->name('payments.index');

@@ -55,23 +55,21 @@ const deleteUtility  = async (utility) => {
 };
 </script>
 
-
-
 <template>
     <Head title="Utilities" />
     <app-layout>
         <div class="max-w-6xl mx-auto py-12">
-            <div class="bg-white shadow-md rounded-lg p-6">
-                <h1 class="text-2xl font-semibold mb-4">Manage Utilities</h1>
+            <div class="bg-white shadow-md rounded-lg p-6 dark:bg-gray-800">
+                <h1 class="text-2xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Manage Utilities</h1>
                 <form @submit.prevent="saveUtility">
                     <!-- Utility Name -->
                     <div class="mb-4">
-                        <label for="name" class="block text-sm font-medium text-gray-700">Utility Name</label>
+                        <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Utility Name</label>
                         <input
                             type="text"
                             id="name"
                             v-model="form.name"
-                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
                             required
                         />
                     </div>
@@ -85,17 +83,17 @@ const deleteUtility  = async (utility) => {
                                 v-model="form.status"
                                 class="form-checkbox h-4 w-4 text-blue-600"
                             />
-                            <span class="ml-2 text-gray-700">Active</span>
+                            <span class="ml-2 text-gray-700 dark:text-gray-300">Active</span>
                         </label>
                     </div>
 
                     <!-- Fee Type -->
                     <div class="mb-4">
-                        <label for="fee_type" class="block text-sm font-medium text-gray-700">Fee Type</label>
+                        <label for="fee_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Fee Type</label>
                         <select
                             id="fee_type"
                             v-model="form.fee_type"
-                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
                             required
                         >
                             <option value="one_time">One Time</option>
@@ -106,14 +104,14 @@ const deleteUtility  = async (utility) => {
 
                     <!-- Price -->
                     <div class="mb-4">
-                        <label for="price" class="block text-sm font-medium text-gray-700">Price</label>
+                        <label for="price" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Price</label>
                         <input
                             type="number"
                             id="price"
                             v-model="form.price"
                             step="0.01"
                             min="0"
-                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
                             required
                         />
                     </div>
@@ -121,7 +119,7 @@ const deleteUtility  = async (utility) => {
                     <div>
                         <button
                             type="submit"
-                            class="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
+                            class="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 dark:bg-blue-700 dark:hover:bg-blue-600"
                         >
                             {{ form.id ? 'Update Utility' : 'Add Utility' }}
                         </button>
@@ -130,35 +128,35 @@ const deleteUtility  = async (utility) => {
 
                 <!-- Utilities Table -->
                 <div class="mt-8">
-                    <h2 class="text-lg font-semibold mb-4">Utilities List</h2>
-                    <table class="min-w-full border border-gray-300">
+                    <h2 class="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Utilities List</h2>
+                    <table class="min-w-full border border-gray-300 dark:border-gray-600">
                         <thead>
-                            <tr class="bg-gray-100">
-                                <th class="px-4 py-2 border">#</th>
-                                <th class="px-4 py-2 border">Name</th>
-                                <th class="px-4 py-2 border">Status</th>
-                                <th class="px-4 py-2 border">Fee Type</th>
-                                <th class="px-4 py-2 border">Price</th>
-                                <th class="px-4 py-2 border">Actions</th>
+                            <tr class="bg-gray-100 dark:bg-gray-700">
+                                <th class="px-4 dark:text-gray-100 py-2 border">#</th>
+                                <th class="px-4 dark:text-gray-100 py-2 border">Name</th>
+                                <th class="px-4 dark:text-gray-100 py-2 border">Status</th>
+                                <th class="px-4 dark:text-gray-100 py-2 border">Fee Type</th>
+                                <th class="px-4 dark:text-gray-100 py-2 border">Price</th>
+                                <th class="px-4 dark:text-gray-100 py-2 border">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="(utility, index) in utilities.data" :key="utility.id">
-                                <td class="px-4 py-2 border">{{ index + 1 }}</td>
-                                <td class="px-4 py-2 border">{{ utility.name }}</td>
-                                <td class="px-4 py-2 border">{{ utility.status }}</td>
-                                <td class="px-4 py-2 border">{{ utility.fee_type }}</td>
-                                <td class="px-4 py-2 border">KES {{ utility.price }}</td>
-                                <td class="px-4 py-2 border flex gap-3">
+                            <tr v-for="(utility, index) in utilities.data" :key="utility.id" class="bg-white dark:bg-gray-800">
+                                <td class="px-4 py-2 border dark:text-gray-100 dark:border-gray-600">{{ index + 1 }}</td>
+                                <td class="px-4 py-2 border dark:text-gray-100 dark:border-gray-600">{{ utility.name }}</td>
+                                <td class="px-4 py-2 border dark:text-gray-100 dark:border-gray-600">{{ utility.status }}</td>
+                                <td class="px-4 py-2 border dark:text-gray-100 dark:border-gray-600">{{ utility.fee_type }}</td>
+                                <td class="px-4 py-2 border dark:text-gray-100 dark:border-gray-600">KES {{ utility.price }}</td>
+                                <td class="px-4 py-2 border dark:text-gray-100 dark:border-gray-600 flex gap-3">
                                     <button
                                         @click="editUtility(utility)"
-                                        class="text-blue-500 hover:text-blue-700"
+                                        class="text-blue-500 hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-400"
                                     >
                                         Edit
                                     </button>
                                     <button
                                         @click="deleteUtility(utility)"
-                                        class="text-red-500 hover:text-red-700"
+                                        class="text-red-500 hover:text-red-700 dark:text-red-300 dark:hover:text-red-400"
                                     >
                                         Delete
                                     </button>

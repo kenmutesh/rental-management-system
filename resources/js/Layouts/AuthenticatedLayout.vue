@@ -39,7 +39,7 @@
     </script>
 
     <template>
-    <div :class="{'dark': isDarkMode}" class="min-h-screen flex bg-gray-100 dark:bg-gray-900">
+    <div :class="{'dark': theme === 'dark'}" class="min-h-screen flex bg-gray-100 dark:bg-gray-900">
         <!-- Sidebar -->
         <aside
         :class="{

@@ -100,9 +100,12 @@ class UnitsController extends Controller
      */
     public function edit(Units $unit)
     {
-        $properties = Property::all();
+            $properties = Property::all();
+            $utilities = Utilities::all();
+
         return Inertia::render('Units/Create', [
-            'unit' => new UnitsResource ($unit),
+            'unit' => new UnitsResource($unit),
+            'utilities' => UtilityResource::collection($utilities),
             'properties' => PropertyResource::collection($properties),
         ]);
     }

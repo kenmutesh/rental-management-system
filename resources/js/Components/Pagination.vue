@@ -8,19 +8,17 @@ const props = defineProps({
   },
 });
 </script>
-
 <template>
   <div v-if="pagination && pagination.links" class="pagination-container">
     <nav class="pagination is-centered" role="navigation" aria-label="pagination">
       <ul class="pagination-list">
         <template v-for="link in pagination.links" :key="link.label">
-          <li v-if="link.label === '...'" :key="link.label">
+          <li v-if="link.label === '...'">
             <span class="pagination-ellipsis">&hellip;</span>
           </li>
-          <li v-else>
+          <li>
             <Link
-              preserve-scroll
-              preserve-state
+             
               class="pagination-link"
               :aria-label="'Goto page ' + link.label"
               :class="{
@@ -28,9 +26,9 @@ const props = defineProps({
                 'is-disabled': !link.url,
               }"
               :aria-current="link.active ? 'page' : null"
-              :href="link.url || null"
+              :href="link.url || ''"
             >
-            <span v-html="link.label"></span>
+              <span v-html="link.label"></span>
             </Link>
           </li>
         </template>

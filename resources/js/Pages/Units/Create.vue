@@ -1,32 +1,41 @@
 <script setup>
-import { ref, defineProps } from 'vue';
+import { ref, onMounted } from 'vue';
 import { Head, Link, usePage, useForm } from '@inertiajs/vue3';
 
-const props = defineProps({
-    unit: Object,
-});
-
-const { properties, utilities } = usePage().props;
+const props = usePage().props;
 
 const isSubmitting = ref(false);
-const isEditing = ref(!!props.unit);
-
+const isEditing = ref(false);
 const form = useForm({
-    id: props.unit ? props.unit.id : null,
-    property_id: props.unit ? props.unit.property_id : '',
-    name: props.unit ? props.unit.name : '',
-    rentAmount: props.unit ? props.unit.rentAmount : '',
-    taxRate: props.unit ? props.unit.taxRate : null,
-    recurringBills: props.unit ? props.unit.recurringBills : [],
-    notes: props.unit ? props.unit.notes : '',
+    id: null,
+    property_id: '',
+    name: '',
+    rentAmount: '',
+    taxRate: null,
+    recurringBills: [],
+    notes: '',
+    errors: {}, // Store form errors here
 });
 
-const selectedBillTypes = ref(new Set(props.unit?.recurringBills.map(bill => bill.type) || []));
+onMounted(() => {
+    if (props.unit) {
+        isEditing.value = true;
+        form.id = props.unit.data.id;
+        form.property_id = props.unit.data.property_id;
+        form.name = props.unit.data.name;
+        form.rentAmount = props.unit.data.rentAmount;
+        form.taxRate = props.unit.data.taxRate;
+        form.recurringBills = props.unit.data.recurringBills || [];
+        form.notes = props.unit.data.notes;
+    }
+});
+
+const selectedBillTypes = ref(new Set(form.recurringBills.map(bill => bill.type)));
 const newBillType = ref('');
 
 const submitForm = async () => {
     isSubmitting.value = true;
-    form.clearErrors();
+    form.errors = {}; // Clear previous errors
 
     try {
         if (isEditing.value) {
@@ -36,7 +45,7 @@ const submitForm = async () => {
         }
     } catch (error) {
         if (error.response && error.response.data && error.response.data.errors) {
-            form.setError(error.response.data.errors);
+            form.errors = error.response.data.errors;
         } else {
             console.error('An unexpected error occurred:', error);
         }
@@ -46,7 +55,7 @@ const submitForm = async () => {
 };
 
 const addBill = (billType) => {
-    const utility = utilities.data.find(u => u.id === billType);
+    const utility = props.utilities.data.find(u => u.id === billType);
     if (billType && utility && !selectedBillTypes.value.has(billType)) {
         form.recurringBills.push({ type: billType, name: utility.name });
         selectedBillTypes.value.add(billType);
@@ -81,7 +90,7 @@ const removeBill = (index) => {
                                 :disabled="form.id !== null"
                             >
                                 <option disabled value="">Select Property</option>
-                                <option v-for="property in properties.data" :key="property.id" :value="property.id">
+                                <option v-for="property in props.properties.data" :key="property.id" :value="property.id">
                                     {{ property.propertyName }}
                                 </option>
                             </select>
@@ -92,7 +101,7 @@ const removeBill = (index) => {
                             <input
                                 type="text"
                                 id="unitName"
-                                :disabled="form.property_id == ''"
+                                :disabled="form.property_id === ''"
                                 v-model="form.name"
                                 class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
                                 required
@@ -140,7 +149,7 @@ const removeBill = (index) => {
                                 class="block border border-gray-300 rounded-md shadow-sm p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
                             >
                                 <option value="">Select bill type</option>
-                                <option v-for="utility in utilities.data" :key="utility.id" :value="utility.id">
+                                <option v-for="utility in props.utilities.data" :key="utility.id" :value="utility.id">
                                     {{ utility.name }}
                                 </option>
                             </select>

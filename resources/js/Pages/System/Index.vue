@@ -1,3 +1,51 @@
+<script setup>
+import { useForm, usePage } from '@inertiajs/inertia-vue3';
+import { ref, onMounted } from 'vue';
+import { Head } from '@inertiajs/vue3';
+
+const backups = ref([]);
+const totalBackups = ref(0);
+
+const form = useForm();
+
+const loadBackups = () => {
+  backups.value = usePage().props.backups || [];
+  totalBackups.value = backups.value.length;  // Update with the actual number of backups
+};
+
+const submitBackup = () => {
+  form.post('/backups/create', {
+    onSuccess: () => {
+      loadBackups(); // Reload the backups list
+    },
+    onError: (errors) => {
+      console.log('Error creating backup:', errors);
+    },
+  });
+};
+
+// Function to restore a backup
+const restoreBackup = (backupName) => {
+  console.log(`Restoring backup: ${backupName}`);
+  // Add actual restore logic (e.g., an API call to restore the backup)
+};
+
+// Function to delete a backup
+const deleteBackup = (backupName) => {
+  console.log(`Deleting backup: ${backupName}`);
+  // Add actual delete logic (e.g., an API call to delete the backup)
+
+  // Remove the backup from the list
+  backups.value = backups.value.filter((backup) => backup.name !== backupName);
+  totalBackups.value = backups.value.length;  // Update the total backup count
+};
+
+// Load backups when the component is mounted
+onMounted(() => {
+  loadBackups();
+});
+</script>
+
 <template>
   <Head title="Backups" />
   <app-layout>
@@ -17,27 +65,29 @@
       <!-- Create Backup Button -->
       <div class="mb-6 text-right">
         <button
-          @click="createBackup"
+          @click="submitBackup"
+          :disabled="form.processing"
           class="text-white bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-md transition duration-300 ease-in-out dark:bg-blue-700 dark:hover:bg-blue-800"
         >
-          Create Backup
+          <span v-if="form.processing">Creating...</span>
+          <span v-else>Create Backup</span>
         </button>
       </div>
 
       <!-- Backup List Section -->
       <div class="mb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div v-for="backup in backups" :key="backup.id" class="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
+        <div v-for="backup in backups" :key="backup.name" class="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
           <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ backup.name }}</h4>
           <p class="mt-2 text-sm text-gray-500 dark:text-gray-300">{{ backup.date }}</p>
           <div class="mt-4">
             <button
-              @click="restoreBackup(backup.id)"
+              @click="restoreBackup(backup.name)"
               class="text-white bg-green-500 hover:bg-green-600 px-4 py-2 rounded-md transition duration-300 ease-in-out dark:bg-green-700 dark:hover:bg-green-800"
             >
               Restore
             </button>
             <button
-              @click="deleteBackup(backup.id)"
+              @click="deleteBackup(backup.name)"
               class="ml-2 text-white bg-red-500 hover:bg-red-600 px-4 py-2 rounded-md transition duration-300 ease-in-out dark:bg-red-700 dark:hover:bg-red-800"
             >
               Delete
@@ -53,66 +103,3 @@
     </div>
   </app-layout>
 </template>
-
-<script>
-export default {
-  data() {
-    return {
-      backups: [], // List of backups
-      totalBackups: 0, // Total number of backups
-    };
-  },
-  methods: {
-    loadBackups() {
-      // Mocked backup data
-      this.backups = [
-        { id: 1, name: 'Backup 1', date: '2024-10-20' },
-        { id: 2, name: 'Backup 2', date: '2024-10-18' },
-        { id: 3, name: 'Backup 3', date: '2024-10-15' },
-      ];
-      this.totalBackups = this.backups.length;
-    },
-    createBackup() {
-      // Simulate API request to create a backup
-      console.log('Creating a new backup...');
-
-      // Simulate a new backup
-      const newBackup = {
-        id: this.backups.length + 1,
-        name: `Backup ${this.backups.length + 1}`,
-        date: new Date().toLocaleDateString(),
-      };
-
-      // Add the new backup to the list
-      this.backups.push(newBackup);
-      this.totalBackups = this.backups.length; // Update the total count
-
-      // Optional: You can call an API here to create the backup on the server
-      // axios.post('/api/backups', newBackup).then(response => {
-      //   console.log('Backup created:', response.data);
-      //   this.loadBackups(); // Reload backups after successful creation
-      // }).catch(error => {
-      //   console.error('Error creating backup:', error);
-      // });
-    },
-    restoreBackup(backupId) {
-      // Logic for restoring the selected backup
-      console.log(`Restoring backup with ID: ${backupId}`);
-    },
-    deleteBackup(backupId) {
-      // Logic for deleting the selected backup
-      console.log(`Deleting backup with ID: ${backupId}`);
-      // Remove the backup from the list
-      this.backups = this.backups.filter((backup) => backup.id !== backupId);
-      this.totalBackups = this.backups.length;
-    },
-  },
-  mounted() {
-    this.loadBackups(); // Load backups on page load
-  },
-}
-</script>
-
-<style scoped>
-/* Additional custom styles */
-</style>
