@@ -1,0 +1,1 @@
+import{p as e,o as a,f as c,a as o,F as r}from"./app-D0Rgxo94.js";import{_ as s}from"./_plugin-vue_export-helper-DlAUqK2U.js";const _={};function p(m,l){const t=e("Head"),n=e("app-layout");return a(),c(r,null,[o(t,{title:"Payment"}),o(n)],64)}const u=s(_,[["render",p]]);export{u as default};

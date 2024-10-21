@@ -1,0 +1,1 @@
+import{p as o,o as s,f as r,a as t,w as c,F as l,d as p}from"./app-D0Rgxo94.js";import{_}from"./_plugin-vue_export-helper-DlAUqK2U.js";const d={};function m(f,e){const n=o("Head"),a=o("app-layout");return s(),r(l,null,[t(n,{title:"Invoices"}),t(a,null,{default:c(()=>e[0]||(e[0]=[p(" invoices ")])),_:1})],64)}const x=_(d,[["render",m]]);export{x as default};
