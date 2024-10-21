@@ -3,153 +3,153 @@
 
     <app-layout>
         <div class="max-w-6xl mx-auto py-12">
-            <div class="bg-white shadow-md rounded-lg p-6">
-                <h2 class="text-xl font-bold mb-6">{{ isEditing ? 'Edit Property' : 'Create Property' }}</h2>
+            <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6">
+                <h2 class="text-xl font-bold mb-6 text-gray-900 dark:text-gray-100">{{ isEditing ? 'Edit Property' : 'Create Property' }}</h2>
 
                 <form @submit.prevent="submitForm">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
                         <!-- Property Name -->
                         <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-2" for="propertyName">
+                            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="propertyName">
                                 Property Name <span class="text-red-500">*</span>
                             </label>
                             <input
                                 v-model="form.propertyName"
                                 type="text"
                                 id="propertyName"
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:bg-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:shadow-outline"
                                 placeholder="Enter property name"
                                 required
                             />
-                            <div v-if="form.errors?.propertyName" class="text-red-600 text-sm">{{ form.errors.propertyName }}</div>
+                            <div v-if="form.errors?.propertyName" class="text-red-600 dark:text-red-400 text-sm">{{ form.errors.propertyName }}</div>
                         </div>
 
                         <!-- Total Units -->
                         <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-2" for="totalUnits">
+                            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="totalUnits">
                                 Total Units <span class="text-red-500">*</span>
                             </label>
                             <input
                                 v-model="form.totalUnits"
                                 type="number"
                                 id="totalUnits"
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:bg-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:shadow-outline"
                                 placeholder="Enter total units"
                                 required
                                 min="1"
                             />
-                            <div v-if="form.errors?.totalUnits" class="text-red-600 text-sm">{{ form.errors.totalUnits }}</div>
+                            <div v-if="form.errors?.totalUnits" class="text-red-600 dark:text-red-400 text-sm">{{ form.errors.totalUnits }}</div>
                         </div>
 
                         <!-- City -->
                         <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-2" for="city">
+                            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="city">
                                 City <span class="text-red-500">*</span>
                             </label>
                             <input
                                 v-model="form.city"
                                 type="text"
                                 id="city"
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:bg-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:shadow-outline"
                                 placeholder="Enter city"
                                 required
                             />
-                            <div v-if="form.errors?.city" class="text-red-600 text-sm">{{ form.errors.city }}</div>
+                            <div v-if="form.errors?.city" class="text-red-600 dark:text-red-400 text-sm">{{ form.errors.city }}</div>
                         </div>
 
                         <!-- Street Name -->
                         <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-2" for="streetName">
+                            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="streetName">
                                 Street Name
                             </label>
                             <input
                                 v-model="form.streetName"
                                 type="text"
                                 id="streetName"
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:bg-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:shadow-outline"
                                 placeholder="Enter street name"
                             />
                         </div>
 
                         <!-- Water Rate -->
                         <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-2" for="waterRate">
+                            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="waterRate">
                                 Water Rate (per unit)
                             </label>
                             <input
                                 v-model="form.waterRate"
                                 type="number"
                                 id="waterRate"
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:bg-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:shadow-outline"
                                 placeholder="Enter water rate"
                             />
                         </div>
 
                         <!-- Electricity Rate -->
                         <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-2" for="electricityRate">
+                            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="electricityRate">
                                 Electricity Rate (per unit)
                             </label>
                             <input
                                 v-model="form.electricityRate"
                                 type="number"
                                 id="electricityRate"
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:bg-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:shadow-outline"
                                 placeholder="Enter electricity rate"
                             />
                         </div>
 
                         <!-- M-Pesa Paybill -->
                         <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-2" for="mpesaPaybill">
+                            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="mpesaPaybill">
                                 M-Pesa Paybill
                             </label>
                             <input
                                 v-model="form.mpesaPaybill"
                                 type="text"
                                 id="mpesaPaybill"
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:bg-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:shadow-outline"
                                 placeholder="Enter M-Pesa paybill number"
                             />
                         </div>
 
                         <!-- M-Pesa Till Number -->
                         <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-2" for="mpesaTillNumber">
+                            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="mpesaTillNumber">
                                 M-Pesa Till Number
                             </label>
                             <input
                                 v-model="form.mpesaTillNumber"
                                 type="text"
                                 id="mpesaTillNumber"
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:bg-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:shadow-outline"
                                 placeholder="Enter M-Pesa till number"
                             />
                         </div>
 
                         <!-- Penalty Percentage -->
                         <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-2" for="penaltyPercentage">
+                            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="penaltyPercentage">
                                 Penalty Percentage (%)
                             </label>
                             <input
                                 v-model="form.penaltyPercentage"
                                 type="number"
                                 id="penaltyPercentage"
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:bg-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:shadow-outline"
                                 placeholder="Enter penalty percentage"
                             />
                         </div>
 
                         <!-- Payment Instructions -->
                         <div class="col-span-full">
-                            <label class="block text-gray-700 text-sm font-bold mb-2" for="paymentInstructions">
+                            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="paymentInstructions">
                                 Payment Instructions
                             </label>
                             <textarea
                                 v-model="form.paymentInstructions"
                                 id="paymentInstructions"
-                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:bg-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:shadow-outline"
                                 placeholder="Enter payment instructions"
                             ></textarea>
                         </div>
@@ -158,7 +158,7 @@
                     <div class="flex items-center justify-between">
                         <button
                             type="submit"
-                            class="bg-blue-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline hover:bg-blue-600"
+                            class="bg-blue-500 dark:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline hover:bg-blue-600 dark:hover:bg-blue-700"
                             :disabled="isSubmitting"
                         >
                             <span v-if="isSubmitting" class="flex items-center">

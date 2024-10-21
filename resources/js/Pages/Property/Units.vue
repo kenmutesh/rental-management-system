@@ -254,6 +254,7 @@ onMounted(() => {
         </app-card>
     </AuthenticatedLayout>
 </template>
+
 <style scoped>
 .table-container {
     overflow-x: auto;

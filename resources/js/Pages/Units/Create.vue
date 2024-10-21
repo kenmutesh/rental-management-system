@@ -9,9 +9,8 @@ const props = defineProps({
 const { properties, utilities } = usePage().props;
 
 const isSubmitting = ref(false);
-const isEditing = ref(!!props.unit); // Check if it's editing mode based on the passed prop
+const isEditing = ref(!!props.unit);
 
-// Initialize form with the unit data if editing, otherwise with defaults
 const form = useForm({
     id: props.unit ? props.unit.id : null,
     property_id: props.unit ? props.unit.property_id : '',
@@ -22,11 +21,9 @@ const form = useForm({
     notes: props.unit ? props.unit.notes : '',
 });
 
-// To keep track of already selected bill types
 const selectedBillTypes = ref(new Set(props.unit?.recurringBills.map(bill => bill.type) || []));
-const newBillType = ref(''); // Ref to hold the currently selected bill type
+const newBillType = ref('');
 
-// Function to handle form submission
 const submitForm = async () => {
     isSubmitting.value = true;
     form.clearErrors();
@@ -38,7 +35,6 @@ const submitForm = async () => {
             await form.post(route('units.store'));
         }
     } catch (error) {
-        // Safeguard against undefined error.response or error.response.data
         if (error.response && error.response.data && error.response.data.errors) {
             form.setError(error.response.data.errors);
         } else {
@@ -49,23 +45,19 @@ const submitForm = async () => {
     }
 };
 
-
-
-// Function to add a bill
 const addBill = (billType) => {
     const utility = utilities.data.find(u => u.id === billType);
     if (billType && utility && !selectedBillTypes.value.has(billType)) {
         form.recurringBills.push({ type: billType, name: utility.name });
-        selectedBillTypes.value.add(billType); // Track selected bill type
-        newBillType.value = ''; // Reset the select input
+        selectedBillTypes.value.add(billType);
+        newBillType.value = '';
     }
 };
 
-// Function to remove a bill
 const removeBill = (index) => {
     const billType = form.recurringBills[index].type;
     form.recurringBills.splice(index, 1);
-    selectedBillTypes.value.delete(billType); // Remove from selected types
+    selectedBillTypes.value.delete(billType);
 };
 </script>
 
@@ -73,19 +65,18 @@ const removeBill = (index) => {
     <Head title="Create/Edit Unit" />
     <app-layout>
         <div class="max-w-6xl mx-auto py-12">
-            <div class="bg-white shadow-md rounded-lg p-6">
-                <h1 class="text-2xl font-semibold mb-4">
+            <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6">
+                <h1 class="text-2xl font-semibold mb-4 text-gray-900 dark:text-white">
                     {{ form.id ? 'Edit Unit' : 'Create Unit' }}
                 </h1>
                 <form @submit.prevent="submitForm">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <!-- Select Property -->
                         <div class="mb-4">
-                            <label for="propertyId" class="block text-sm font-medium text-gray-700">Select Property</label>
+                            <label for="propertyId" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Select Property</label>
                             <select
                                 id="property"
                                 v-model="form.property_id"
-                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
                                 required
                                 :disabled="form.id !== null"
                             >
@@ -96,49 +87,45 @@ const removeBill = (index) => {
                             </select>
                         </div>
 
-                        <!-- Unit ID/Name -->
                         <div class="mb-4">
-                            <label for="unitName" class="block text-sm font-medium text-gray-700">Unit ID/Name</label>
+                            <label for="unitName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Unit ID/Name</label>
                             <input
                                 type="text"
                                 id="unitName"
                                 :disabled="form.property_id == ''"
                                 v-model="form.name"
-                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
                                 required
                             />
                         </div>
 
-                        <!-- Rent Amount -->
                         <div class="mb-4">
-                            <label for="rentAmount" class="block text-sm font-medium text-gray-700">Rent Amount</label>
+                            <label for="rentAmount" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Rent Amount</label>
                             <input
                                 type="number"
                                 id="rentAmount"
                                 v-model="form.rentAmount"
-                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
                                 required
                             />
                         </div>
 
-                        <!-- Tax Rate -->
                         <div class="mb-4">
-                            <label for="taxRate" class="block text-sm font-medium text-gray-700">Tax Rate % (optional)</label>
+                            <label for="taxRate" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tax Rate % (optional)</label>
                             <input
                                 type="number"
                                 id="taxRate"
                                 v-model="form.taxRate"
                                 placeholder="e.g. 7.5 for residential or 16 for commercial"
-                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
                             />
-                            <p class="text-gray-500 text-xs mt-1">
+                            <p class="text-gray-500 text-xs mt-1 dark:text-gray-400">
                                 Residential units tax rate is usually 7.5%. Commercial units tax rate is usually 16%.
                             </p>
                         </div>
 
-                        <!-- Other Recurring Bills -->
                         <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700">Other Recurring Bills (optional)</label>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Other Recurring Bills (optional)</label>
                             <div v-for="(bill, index) in form.recurringBills" :key="index" class="flex items-center space-x-2 mb-2">
                                 <span class="bg-blue-500 text-white text-xs font-medium mr-2 px-2.5 py-0.5 rounded">
                                     {{ bill.name }}
@@ -150,7 +137,7 @@ const removeBill = (index) => {
                             <select
                                 v-model="newBillType"
                                 @change="addBill(newBillType)"
-                                class="block border border-gray-300 rounded-md shadow-sm p-2"
+                                class="block border border-gray-300 rounded-md shadow-sm p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
                             >
                                 <option value="">Select bill type</option>
                                 <option v-for="utility in utilities.data" :key="utility.id" :value="utility.id">
@@ -159,14 +146,13 @@ const removeBill = (index) => {
                             </select>
                         </div>
 
-                        <!-- Notes -->
                         <div class="mb-4">
-                            <label for="notes" class="block text-sm font-medium text-gray-700">Notes (optional)</label>
+                            <label for="notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Notes (optional)</label>
                             <textarea
                                 id="notes"
                                 v-model="form.notes"
                                 rows="3"
-                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
                             ></textarea>
                         </div>
                     </div>
@@ -174,7 +160,7 @@ const removeBill = (index) => {
                     <div class="mt-4">
                         <button
                             type="submit"
-                            class="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
+                            class="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
                             :disabled="isSubmitting"
                         >
                             {{ form.id ? 'Update Unit' : 'Create Unit' }}
@@ -184,7 +170,7 @@ const removeBill = (index) => {
                 <div class="mt-4">
                     <Link
                         href="/units"
-                        class="text-blue-500 hover:text-blue-700"
+                        class="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-500"
                     >
                         Back to Units
                     </Link>

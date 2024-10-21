@@ -2,13 +2,16 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\CommunicationsController;
+use App\Http\Controllers\ExpensesController;
 use App\Http\Controllers\InvoicesController;
 use App\Http\Controllers\PaymentsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PropertyController;
+use App\Http\Controllers\SystemManagementController;
 use App\Http\Controllers\TenantsController;
 use App\Http\Controllers\UnitsController;
 use App\Http\Controllers\UtilitiesController;
+use App\Models\SystemManagement;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -57,6 +60,11 @@ Route::middleware('auth')->group(function () {
     Route::get('tenants/invoices/{tenant}', [TenantsController::class, 'invoices'])->name('tenants.invoices');
     Route::get('tenants/invoices/{invoice}/view', [InvoicesController::class, 'show'])->name('tenants.invoices.show');
     Route::post('tenants/store', [TenantsController::class, 'store'])->name('tenants.store');
+
+
+    Route::get('/expenses', [ExpensesController::class, 'index'])->name('expenses.index');
+
+    Route::get('/backup', [SystemManagementController::class, 'index'])->name('management.backup');
 
     Route::get('invoices', [InvoicesController::class, 'index'])->name('invoices.index');
 
