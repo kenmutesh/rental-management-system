@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\SystemManagement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
-use Inertia\Inertia;
 use Illuminate\Support\Facades\File;
+use Inertia\Inertia;
 
 class SystemManagementController extends Controller
 {
@@ -15,19 +15,18 @@ class SystemManagementController extends Controller
      */
     public function index()
     {
-        $backupDirectory = str_replace('\\', '/', storage_path('app/backups'));
+         $backupDirectory = storage_path('app/backups');
 
-       
+    // Check if the directory exists and get all files
+    $backups = [];
+    if (File::exists($backupDirectory)) {
         $backups = File::files($backupDirectory);
-        $backups = [];
-        if (File::exists($backupDirectory)) {
-            $backups = File::files($backupDirectory);
-        }
+    }
 
-        // Pass the backup files to the Inertia view
-        return Inertia::render('System/Index', [
-            'backups' => $backups
-        ]);
+    // Pass the backup files to the Inertia view
+    return Inertia::render('System/Index', [
+        'backups' => $backups
+    ]);
     }
 
     /**
@@ -36,9 +35,8 @@ class SystemManagementController extends Controller
     public function create()
     {
         try {
-            $output = shell_exec('which php');
             Artisan::call('backup:run');
-            return back()->with('message', 'Backup created successfully. Output: ' . $output);
+            return back()->with('message', 'Backup created successfully.');
         } catch (\Exception $e) {
             return back()->with('error', 'Failed to create backup: ' . $e->getMessage());
         }
