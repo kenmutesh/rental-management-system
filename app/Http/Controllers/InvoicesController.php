@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\InvoiceResource;
 use App\Models\Invoices;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -12,10 +13,20 @@ class InvoicesController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return Inertia::render('Invoices/Index');
+        $year = $request->input('year', now()->year);
+        $month = $request->input('month', now()->month);
+
+        $invoices = Invoices::whereYear('created_at', $year)
+            ->whereMonth('created_at', $month)
+            ->get();
+
+        return Inertia::render('Invoices/Index', [
+            'invoices' => InvoiceResource::collection($invoices),
+        ]);
     }
+
 
     /**
      * Show the form for creating a new resource.
