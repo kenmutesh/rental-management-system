@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('tenant_accounts', function (Blueprint $table) {
             $table->id();
-            $table->string('phone_number');
-            $table->decimal('balance', 10,2);
+            $table->string('account_number');
+            $table->decimal('balance', 10,2)->default(0);
             $table->timestamps();
         });
     }

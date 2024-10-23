@@ -8,6 +8,7 @@ use App\Http\Resources\PropertyResource;
 use App\Http\Resources\TenantsResource;
 use App\Models\Invoices;
 use App\Models\Property;
+use App\Models\TenantAccounts;
 use App\Models\Tenants;
 use App\Models\Units;
 use App\SmsTenant;
@@ -76,6 +77,7 @@ class TenantsController extends Controller
         DB::beginTransaction();
 
         try {
+            // Tenant creation logic
             $tenant = Tenants::create([
                 'firstName' => $request->firstName,
                 'lastName' => $request->lastName,
@@ -91,23 +93,34 @@ class TenantsController extends Controller
 
             if (!$unit) {
                 DB::rollBack();
-                return response()->json(['error' => 'Unit not found'], 404);
+                return redirect()->route('tenants.create')->with([
+                    'message' => 'Unit not found',
+                    'type' => 'error',
+                ]);
             }
 
+            \\\\\\\
+            
             $unit->occupied_by = $tenant->id;
             $unit->save();
 
-            // $this->sendSmsToTenant($request, 'welcome');
+            $tenant_account = TenantAccounts::create([
+                'account_number' => $request->accountNumber ?? $request->phone,
+            ]);
 
             DB::commit();
 
-            return to_route('tenants.index')->with('message', 'Tenant created successfully');
+            return redirect()->route('tenants.index')->with([
+                'message' => 'Tenant created successfully',
+                'type' => 'success',
+            ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            return to_route('tenants.create')->with('message', 'Error creating tenant');
-
+            return redirect()->route('tenants.create')->with([
+                'message' => 'Error creating tenant',
+                'type' => 'error',
+            ]);
         }
-
     }
 
     /**

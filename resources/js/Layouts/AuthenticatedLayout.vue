@@ -1,42 +1,49 @@
-    <script setup>
-    import { ref, onMounted } from 'vue';
-    import { router, usePage } from '@inertiajs/vue3';
-    import { toast } from 'vue3-toastify';
+ <script setup>
+import { ref, onMounted } from 'vue';
+import { usePage } from '@inertiajs/vue3';
+import { toast } from 'vue3-toastify';
 
-    // Sidebar state and navigation
-    const isSidebarOpen = ref(false);
-    const showingChildren = ref(null);
+// Sidebar state and navigation
+const isSidebarOpen = ref(false);
+const showingChildren = ref(null);
+const theme = ref(localStorage.getItem('theme') || 'light');
 
-    const theme = ref(localStorage.getItem('theme') || 'light');
+const toggleChildren = (index) => {
+  showingChildren.value = showingChildren.value === index ? null : index;
+};
 
-    const toggleChildren = (index) => {
-    showingChildren.value = showingChildren.value === index ? null : index;
-    };
+const toggleDarkMode = () => {
+  theme.value = theme.value === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('theme', theme.value);
+  document.documentElement.classList.toggle('dark', theme.value === 'dark');
+};
 
-    const toggleDarkMode = () => {
-        theme.value = theme.value === 'dark' ? 'light' : 'dark';
-        localStorage.setItem('theme', theme.value);
-        document.documentElement.classList.toggle('dark', theme.value === 'dark');
-    };
+// Flash message handling
+const page = usePage();
+onMounted(() => {
+  document.documentElement.classList.toggle('dark', theme.value === 'dark');
 
-    // Flash message handling
-    const page = usePage();
-    onMounted(() => {
-        document.documentElement.classList.toggle('dark', theme.value === 'dark');
-
-    if (page.props.flash.message) {
-        toast.success(page.props.flash.message, {
-        position: 'top-right',
-        autoClose: 3000,
-        theme: 'colored',
-        });
-    }
+  if (page.props.flash.message) {
+    toast.success(page.props.flash.message, {
+      position: 'top-right',
+      autoClose: 3000,
+      theme: 'colored',
     });
+  }
 
-    const logout = () => {
-    router.post('/logout');
-    };
-    </script>
+  if (page.props.flash.error) {
+    toast.error(page.props.flash.error, {
+      position: 'top-right',
+      autoClose: 3000,
+      theme: 'colored',
+    });
+  }
+});
+
+const logout = () => {
+  router.post('/logout');
+};
+</script>
 
     <template>
     <div :class="{'dark': theme === 'dark'}" class="min-h-screen flex bg-gray-100 dark:bg-gray-900">

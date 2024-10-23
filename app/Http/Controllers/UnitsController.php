@@ -59,10 +59,7 @@ class UnitsController extends Controller
         $property = Property::find($request->property_id);
 
         if ($property->units()->count() >= $property->totalUnits) {
-            return response()->json([
-                'message' => 'The property has reached the maximum number of units allowed.',
-                'units' => $property->units,
-            ], 400);
+           return to_route('units.create')->with('message', 'Error creating unit');
         }
 
         $unit = Units::create([
@@ -79,8 +76,6 @@ class UnitsController extends Controller
                 ]);
             }
         }
-
-
         return to_route('units.index')->with('message', 'The Unit has been created successfully');
     }
 
