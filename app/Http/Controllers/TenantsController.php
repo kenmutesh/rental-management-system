@@ -99,8 +99,8 @@ class TenantsController extends Controller
                 ]);
             }
 
-            \\\\\\\
-            
+        
+
             $unit->occupied_by = $tenant->id;
             $unit->save();
 
