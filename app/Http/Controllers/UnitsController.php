@@ -9,6 +9,7 @@ use App\Models\Property;
 use App\Models\Units;
 use App\Models\Utilities;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class UnitsController extends Controller
@@ -50,7 +51,12 @@ class UnitsController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|unique:units,name',
+            'name' => ['required','string',
+                Rule::unique('units')->where(function ($query)
+                    use($request){
+                        return $query->where('property_id', $request->property_id);
+                    })
+                ],
             'property_id' => 'required|exists:properties,id',
             'rentAmount' => 'required|numeric',
             'notes' => 'nullable|string',

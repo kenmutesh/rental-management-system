@@ -99,14 +99,22 @@ class TenantsController extends Controller
                 ]);
             }
 
-        
+
 
             $unit->occupied_by = $tenant->id;
             $unit->save();
 
-            $tenant_account = TenantAccounts::create([
-                'account_number' => $request->accountNumber ?? $request->phone,
-            ]);
+            $tenant_account = TenantAccounts::where('account_number', $request->accountNumber ?? $request->phone)->first();
+
+            if ($tenant_account) {
+                $tenant_account->balance = 0;
+                $tenant_account->save();
+            } else {
+                $tenant_account = TenantAccounts::create([
+                    'account_number' => $request->accountNumber ?? $request->phone,
+                    'balance' => 0,
+                ]);
+            }
 
             DB::commit();
 

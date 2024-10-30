@@ -15,18 +15,25 @@ class PropertyController extends Controller
      */
     public function index()
     {
-        $properties = Property::with('units')->get();
+        $user = auth()->user();
 
+        $properties = $user->properties()->with('units')->get();
 
-        $vacancies = Units::whereNull('occupied_by')->count();
+        foreach ($properties as $property) {
+            $property->totalUnits = $property->units->count();
+            $property->totalOccupiedUnits = $property->units->whereNotNull('occupied_by')->count();
+            $property->availableUnits = $property->totalUnits - $property->totalOccupiedUnits;
+            $property->percentageOccupied = $property->totalUnits > 0
+                ? ($property->totalOccupiedUnits / $property->totalUnits) * 100
+                : 0;
+        }
 
         return Inertia::render('Property/Index', [
             'properties' => PropertyResource::collection($properties),
-            'vacancies' => $vacancies,
-            'totalUnits' => $properties->sum(function ($property) {
-                return $property->units->count();
-            }),
-            'totalProperties' => $properties->count()
+            'totalUnits' => $properties->sum('totalUnits'),
+            'totalOccupiedUnits' => $properties->sum('totalOccupiedUnits'),
+            'vacancies' => $properties->sum('availableUnits'),
+            'totalProperties' => $properties->count(),
         ]);
     }
 

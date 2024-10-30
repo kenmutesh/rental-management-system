@@ -25,7 +25,7 @@ class TenantRequest extends FormRequest
             'firstName' => 'required|string|max:255',
             'lastName' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:tenants,email',
-            'phone' => 'required|string|size:10',
+            'phone' => 'required|string|size:10|unique:tenants,phone',
             'accountNumber' => 'nullable|string|max:50|unique:tenants,account_number',
             'leaseStartDate' => 'required|date',
             'unit_id' => 'required|exists:units,id',

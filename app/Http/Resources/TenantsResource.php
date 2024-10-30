@@ -2,6 +2,8 @@
 
 namespace App\Http\Resources;
 
+use App\Models\TenantAccounts;
+use App\Models\Tenants;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -19,9 +21,15 @@ class TenantsResource extends JsonResource
             'name' => $this->firstName,
             'email' => $this->email,
             'phone' => $this->phone,
-            'balance' => $this->balance
-
-
+            'balance' => $this->balance,
+            'account_balance' => $this->account_balance(),
         ];
+    }
+
+    private function account_balance()
+    {
+        $tenant_account = TenantAccounts::where('account_number', $this->account_number ?? $this->phone)->first();
+
+        return number_format($tenant_account->balance, 2);
     }
 }

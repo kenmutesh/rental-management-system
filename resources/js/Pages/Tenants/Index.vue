@@ -3,23 +3,18 @@ import { Head, Link, usePage, router } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 import { AcademicCapIcon, CashIcon, DocumentTextIcon, PlusIcon } from '@heroicons/vue/outline';
 
-// Tenants summary data
 const tenantsSummary = ref({
   totalBalance: 5000,
   defaultLeases: 5,
 });
 
-// Get props from usePage
 const { search, page, totalTenants, tenants: propsTenants } = usePage().props;
 
-// Set initial values for searchQuery and pageNumber
 const searchQuery = ref(search || '');
 const pageNumber = ref(page || 1);
 
-// Conditionally use ref or props for tenants
 const tenants = ref(propsTenants);
 
-// Watchers to update data when URL changes
 const tenantUrl = computed(() => {
   let url = new URL(route('tenants.index'));
   url.searchParams.append('page', pageNumber.value);
@@ -31,7 +26,6 @@ const tenantUrl = computed(() => {
   return url;
 });
 
-// Fetch tenants on URL change
 watch([tenantUrl, pageNumber], () => {
   router.get(tenantUrl.value.toString(), {
     preserveState: true,
@@ -45,7 +39,6 @@ watch([tenantUrl, pageNumber], () => {
 <template>
   <Head title="Tenants" />
   <app-layout>
-    <!-- Create Tenant Button -->
     <div class="flex mb-6">
       <Link href="/tenants/create" class="flex items-center bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 ml-auto">
         <PlusIcon class="w-5 h-5 mr-2" />
@@ -96,8 +89,8 @@ watch([tenantUrl, pageNumber], () => {
             <tr>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tenant Name</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Account Balance</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lease Expiration</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
             </tr>
           </thead>
@@ -105,8 +98,8 @@ watch([tenantUrl, pageNumber], () => {
             <tr v-for="(tenant, index) in tenants.data" :key="tenant.id">
               <td class="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100">{{ index + 1 }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100">{{ tenant.name }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100">KES {{ tenant.account_balance }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100">KES {{ tenant.balance }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-gray-100">{{ tenant.lease_expiration }}</td>
               <td class="py-4 px-6">
                 <Link :href="`/tenants/invoices/${tenant.id}`" class="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 mr-4">
                   View invoices

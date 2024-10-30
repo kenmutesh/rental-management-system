@@ -44,4 +44,10 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+
+    public function properties()
+    {
+        return $this->belongsToMany(Property::class, 'property_user');
+    }
 }

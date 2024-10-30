@@ -14,7 +14,15 @@ const form = useForm({
     taxRate: null,
     recurringBills: [],
     notes: '',
-    errors: {}, // Store form errors here
+});
+
+const errors = ref({
+    property_id: '',
+    name: '',
+    rentAmount: '',
+    recurringBills: '',
+    taxRate: '',
+    notes: '',
 });
 
 onMounted(() => {
@@ -94,6 +102,7 @@ const removeBill = (index) => {
                                     {{ property.propertyName }}
                                 </option>
                             </select>
+                             <span v-if="form.errors.property_id" class="text-red-500 text-sm">{{ form.errors.property_id }}</span>
                         </div>
 
                         <div class="mb-4">
@@ -106,6 +115,7 @@ const removeBill = (index) => {
                                 class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
                                 required
                             />
+                             <span v-if="form.errors.name" class="text-red-500 text-sm">{{ form.errors.name }}</span>
                         </div>
 
                         <div class="mb-4">
@@ -117,6 +127,7 @@ const removeBill = (index) => {
                                 class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
                                 required
                             />
+                             <span v-if="form.errors.rentAmount" class="text-red-500 text-sm">{{ form.errors.rentAmount }}</span>
                         </div>
 
                         <div class="mb-4">
