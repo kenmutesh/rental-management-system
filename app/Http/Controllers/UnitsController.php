@@ -19,7 +19,16 @@ class UnitsController extends Controller
      */
     public function index(Request $request)
     {
-        $units = Units::paginate(10);
+        // Get the logged-in user
+        $user = auth()->user();
+
+        // Retrieve units associated with the user's properties
+        $units = Units::whereHas('property', function ($query) use ($user) {
+            // Explicitly specify the table name for the id column
+            $query->whereIn('properties.id', $user->properties()->pluck('properties.id'));
+        })->paginate(10);
+
+        // Calculate total units and occupied units
         $totalUnits = $units->count();
         $totalOccupied = $units->whereNotNull('occupied_by')->count();
 
@@ -28,8 +37,8 @@ class UnitsController extends Controller
             'totalUnits' => $totalUnits,
             'totalOccupied' => $totalOccupied
         ]);
-
     }
+
 
     /**
      * Show the form for creating a new resource.
