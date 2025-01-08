@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('propertyName');
             $table->integer('totalUnits');
             $table->string('city');
+            $table->string('invoicingDay');
+            $table->string('smsReminderDay');
             $table->float('waterRate')->nullable();
             $table->string('electricityRate')->nullable();
             $table->string('penaltyPercentage')->nullable();

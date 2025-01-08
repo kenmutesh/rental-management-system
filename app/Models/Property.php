@@ -18,6 +18,8 @@ class Property extends Model
         'penaltyPercentage',
         'streetName',
         'paymentUnstructions',
+        'invoicingDay',
+        'smsReminderDay'
     ];
 
 
@@ -33,4 +35,9 @@ class Property extends Model
         return $this->belongsToMany(User::class, 'property_user');
     }
 
+    // In Property.php
+    public function tenants()
+    {
+        return $this->hasManyThrough(Tenants::class, Units::class, 'property_id', 'id', 'id', 'occupied_by');
+    }
 }

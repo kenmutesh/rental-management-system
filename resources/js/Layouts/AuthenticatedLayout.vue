@@ -1,6 +1,6 @@
  <script setup>
 import { ref, onMounted } from 'vue';
-import { usePage } from '@inertiajs/vue3';
+import { usePage, router } from '@inertiajs/vue3';
 import { toast } from 'vue3-toastify';
 
 // Sidebar state and navigation

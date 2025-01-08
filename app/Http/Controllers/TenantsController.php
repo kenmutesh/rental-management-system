@@ -24,15 +24,24 @@ class TenantsController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Tenants::query();
+        $user = auth()->user();
 
+        // Get properties assigned to the logged-in user
+        $propertyIds = $user->properties->pluck('id')->toArray();
+
+        // Query tenants in the user's properties through their unit and property relationship
+        $query = Tenants::whereHas('unit.property', function ($query) use ($propertyIds) {
+            $query->whereIn('id', $propertyIds);
+        });
+
+        // Apply search filter if search term is provided
         if ($request->has('search') && !empty($request->search)) {
             $query = $this->applySearch($query, $request->search);
         }
 
-        $totalTenants = Tenants::all()->count();
-
+        $totalTenants = $query->count();
         $tenants = $query->paginate(10);
+
         return Inertia::render('Tenants/Index', [
             'tenants' => TenantsResource::collection($tenants),
             'search' => $request->search,
@@ -40,7 +49,6 @@ class TenantsController extends Controller
             'totalTenants' => $totalTenants
         ]);
     }
-
 
 
     private function applySearch($query, $search)
@@ -61,8 +69,9 @@ class TenantsController extends Controller
      */
     public function create()
     {
-        $properties = Property::with('units')
-                    ->get();
+        $user = auth()->user();
+
+        $properties = $user->properties()->with('units')->get();
 
         return Inertia::render('Tenants/Create', [
             'properties' => PropertyResource::collection($properties)

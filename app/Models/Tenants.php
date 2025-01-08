@@ -21,4 +21,14 @@ class Tenants extends Model
         'balance',
         'status',
     ];
+
+    public function unit()
+    {
+        return $this->belongsTo(Units::class, 'id', 'occupied_by');
+    }
+
+    public function account()
+    {
+        return $this->hasOne(TenantAccounts::class);
+    }
 }

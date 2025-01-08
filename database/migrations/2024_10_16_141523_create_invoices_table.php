@@ -18,6 +18,7 @@ return new class extends Migration
             $table->decimal('amount', 10, 2);
             $table->integer('invoice_month');
             $table->integer('invoice_year');
+            $table->decimal('amount_paid', 10, 2);
             $table->timestamps();
         });
     }

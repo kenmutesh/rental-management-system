@@ -6,6 +6,7 @@ use App\Http\Resources\PropertyResource;
 use App\Models\Property;
 use App\Models\Units;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class PropertyController extends Controller
@@ -59,10 +60,12 @@ class PropertyController extends Controller
             'penaltyPercentage' => 'nullable|numeric|min:0|max:100',
             'streetName' => 'nullable|string|max:255',
             'paymentInstructions' => 'nullable|string|max:500',
+            'invoicingDay' => 'Required|integer|min:0',
+            'smsReminderDay' => 'Required|integer|min:0',
         ]);
 
 
-        Property::create([
+        $property = Property::create([
             'propertyName' => $request->propertyName,
             'totalUnits' => $request->totalUnits,
             'city' => $request->city,
@@ -70,8 +73,16 @@ class PropertyController extends Controller
             'electricityRate' => $request->electricityRate,
             'penaltyPercentage' => $request->penaltyPercentage,
             'streetName' => $request->streetName,
+            'invoicingDay' => $request->invoicingDay,
+            'smsReminderDay' => $request->smsReminderDay,
             'paymentInstructions' => $request->paymentInstructions
         ]);
+
+
+
+        $user = auth()->user();
+
+        $user->properties()->attach($property->id);
 
         return to_route('properties.index', [
             'properties' => Property::all(),

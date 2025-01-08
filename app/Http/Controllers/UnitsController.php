@@ -45,7 +45,9 @@ class UnitsController extends Controller
      */
     public function create()
     {
-        $properties = Property::all();
+        $user = auth()->user();
+
+        $properties = $user->properties()->get();
         $utilities = Utilities::all();
 
         return Inertia::render('Units/Create', [

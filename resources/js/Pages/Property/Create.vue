@@ -70,6 +70,36 @@
                                 placeholder="Enter street name"
                             />
                         </div>
+                         <!-- Invoicing date -->
+                         <div>
+                            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="invoicingDate">
+                                Invoicing Day (1-28) <span class="text-red-500">*</span>
+                            </label>
+                            <select
+                                v-model="form.invoicingDay"
+                                id="invoicingDate"
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:bg-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:shadow-outline"
+                                required
+                            >
+                                <option value="" disabled>Select a day</option>
+                                <option v-for="day in days" :key="day" :value="day">{{ day }}</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="smsReminderDate">
+                                SMS Reminder Day (1-28) <span class="text-red-500">*</span>
+                            </label>
+                            <select
+                                v-model="form.smsReminderDay"
+                                id="smsReminderDate"
+                                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:bg-gray-700 dark:text-gray-300 leading-tight focus:outline-none focus:shadow-outline"
+                                required
+                            >
+                                <option value="" disabled>Select a day</option>
+                                <option v-for="day in days" :key="day" :value="day">{{ day }}</option>
+                            </select>
+                        </div>
 
                         <!-- Water Rate -->
                         <div>
@@ -200,8 +230,11 @@ const props = usePage().props;
 
 const isSubmitting = ref(false);
 const isEditing = ref(false);
+const days = ref([...Array(28).keys()].map((day) => day + 1));
 const form = useForm({
     propertyName: '',
+    invoicingDay: '',
+    smsReminderDay: '',
     totalUnits: '',
     city: '',
     waterRate: '',
@@ -226,6 +259,8 @@ onMounted(() => {
         form.mpesaTillNumber = props.property.mpesaTillNumber;
         form.penaltyPercentage = props.property.penaltyPercentage;
         form.streetName = props.property.streetName;
+        form.invoicingDay = props.property.invoicingDay;
+        form.smsReminderDay = props.property.smsReminderDay;
         form.paymentInstructions = props.property.paymentInstructions;
     }
 });
