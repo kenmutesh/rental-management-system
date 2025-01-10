@@ -1,0 +1,1 @@
+import{p as t,o as n,f as r,d as s,a as p}from"./app-Cd6mMTGJ.js";import{_ as a}from"./_plugin-vue_export-helper-DlAUqK2U.js";/* empty css            */const c={};function m(_,e){const o=t("app-spinner");return n(),r("div",null,[e[0]||(e[0]=s(" test ")),p(o)])}const d=a(c,[["render",m]]);export{d as default};
