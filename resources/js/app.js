@@ -6,6 +6,9 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createApp, h } from 'vue';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 import registerGlobalComponents from './global';
+import ToastPlugin from 'vue-toast-notification';
+import 'vue-toast-notification/dist/theme-bootstrap.css';
+import 'vue-toast-notification/dist/theme-sugar.css';
 
 import Toast from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
@@ -21,7 +24,7 @@ createInertiaApp({
         ),
     setup({ el, App, props, plugin }) {
         const app = createApp({ render: () => h(App, props) });
-
+        app.use(ToastPlugin);
         app.use(Toast, {
             position: 'top-right',
             autoClose: 3000,
