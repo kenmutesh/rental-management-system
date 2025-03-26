@@ -10,6 +10,7 @@ use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\SystemManagementController;
 use App\Http\Controllers\TenantsController;
 use App\Http\Controllers\UnitsController;
+use App\Http\Controllers\UsersController;
 use App\Http\Controllers\UtilitiesController;
 use App\Models\SystemManagement;
 use Illuminate\Foundation\Application;
@@ -74,6 +75,9 @@ Route::middleware('auth')->group(function () {
     Route::get('communication', [CommunicationsController::class, 'index'])->name('communication.index');
     Route::get('communication/create', [CommunicationsController::class, 'create'])->name('communication.create');
     Route::post('communication/single', [CommunicationsController::class, 'single'])->name('communication.single');
+
+
+    Route::get('users/view', [UsersController::class, 'index'])->name('communication.index');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

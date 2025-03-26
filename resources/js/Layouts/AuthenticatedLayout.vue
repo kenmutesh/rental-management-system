@@ -122,6 +122,8 @@ const logout = () => {
                             </a>
                         </div>
                     </div>
+
+
                     <a href="/reports" class="flex items-center py-2 px-4 text-white hover:bg-blue-700 rounded">
                         <i class="fas fa-chart-line mr-2"></i>
                         <span>Reports</span>
@@ -133,12 +135,32 @@ const logout = () => {
                     <div>
                         <button @click="toggleChildren(3)" class="flex justify-between items-center w-full py-2 px-4 text-left text-white hover:bg-blue-700 rounded">
                             <div class="flex items-center">
-                                <i class="fas fa-cog mr-2"></i>
-                                <span>Settings</span>
+                                <i class="fas fa-user mr-2"></i>
+                                <span>User Management</span>
                             </div>
                             <i :class="showingChildren === 3 ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"></i>
                         </button>
                         <div v-if="showingChildren === 3" class="pl-10 transition-all duration-300">
+                            <a href="/users/view" class="flex items-center py-2 text-white hover:bg-blue-700 rounded">
+                                <i class="fas fa-users mr-2"></i>
+                                <span>Users</span>
+                            </a>
+                            <a href="/roles" class="flex items-center py-2 text-white hover:bg-blue-700 rounded">
+                                <i class="fas fa-key mr-2"></i>
+                                <span>Roles</span>
+                            </a>
+
+                        </div>
+                    </div>
+                    <div>
+                        <button @click="toggleChildren(4)" class="flex justify-between items-center w-full py-2 px-4 text-left text-white hover:bg-blue-700 rounded">
+                            <div class="flex items-center">
+                                <i class="fas fa-cog mr-2"></i>
+                                <span>Settings</span>
+                            </div>
+                            <i :class="showingChildren === 4 ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"></i>
+                        </button>
+                        <div v-if="showingChildren === 4" class="pl-10 transition-all duration-300">
                             <a href="/general" class="flex items-center py-2 text-white hover:bg-blue-700 rounded">
                                 <i class="fas fa-sliders-h mr-2"></i>
                                 <span>General</span>
