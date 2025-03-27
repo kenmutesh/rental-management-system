@@ -12,6 +12,7 @@ const form = useForm({
     name: '',
     rentAmount: '',
     taxRate: null,
+    accountNumber: null,
     recurringBills: [],
     notes: '',
 });
@@ -21,6 +22,7 @@ const errors = ref({
     name: '',
     rentAmount: '',
     recurringBills: '',
+    accountNumber: '',
     taxRate: '',
     notes: '',
 });
@@ -33,6 +35,7 @@ onMounted(() => {
         form.name = props.unit.data.name;
         form.rentAmount = props.unit.data.rentAmount;
         form.taxRate = props.unit.data.taxRate;
+        form.accountNumber = props.unit.accountNumber;
         form.recurringBills = props.unit.data.recurringBills || [];
         form.notes = props.unit.data.notes;
     }
@@ -141,6 +144,19 @@ const removeBill = (index) => {
                             />
                             <p class="text-gray-500 text-xs mt-1 dark:text-gray-400">
                                 Residential units tax rate is usually 7.5%. Commercial units tax rate is usually 16%.
+                            </p>
+                        </div>
+                        <div class="mb-4">
+                            <label for="accountNumber" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Payment Account Number (optional)</label>
+                            <input
+                                type="text"
+                                id="accountNumber"
+                                v-model="form.accountNumber"
+                                placeholder=""
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
+                            />
+                            <p class="text-gray-500 text-xs mt-1 dark:text-gray-400">
+                                Account used to make payment
                             </p>
                         </div>
 

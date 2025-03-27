@@ -1,47 +1,88 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { Head, useForm, usePage } from '@inertiajs/vue3';
-import { PlusIcon } from '@heroicons/vue/outline';
+import { PlusIcon, ArrowRightIcon, ArrowLeftIcon } from '@heroicons/vue/outline';
 
 const form = useForm({
+    // Personal Information
     firstName: '',
     lastName: '',
     email: '',
     phone: '',
+    idNumber: '',
+    kraPin: '',
+
+    // Employment Information
+    employerName: '',
+    jobTitle: '',
+    monthlyIncome: '',
+    employmentLetter: null,
+    payslips: [],
+
+    // Rental Information
+    property_id: '',
+    unit_id: '',
     leaseStartDate: '',
-    accountNumber: '',
-    notes: '',
-    property_id: '',
-    unit_id: '',
+    leaseDuration: '12', // Default to 12 months
+    rentAmount: '',
+
+    // Financial Information
+    securityDeposit: '',
+    advanceRent: '',
+    paymentMethod: 'bank',
+
+    // Documents
+    idCopy: null,
+    kraPinCopy: null,
+    bankStatements: [],
+    references: [],
+
+    // Additional Information
+    emergencyContactName: '',
+    emergencyContactPhone: '',
+    notes: ''
 });
 
-const errors = ref({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    property_id: '',
-    unit_id: '',
-    leaseStartDate: ''
-});
+const currentStep = ref(1);
+const totalSteps = 5;
 
-
-const validateForm = () => {
-    errors.value.firstName = form.firstName ? '' : 'First name is required';
-    errors.value.lastName = form.lastName ? '' : 'Last name is required';
-    errors.value.email = form.email ? '' : 'Email is required';
-    errors.value.phone = form.phone ? '' : 'Phone is required';
-    errors.value.property_id = form.property_id ? '' : 'Property is required';
-    errors.value.unit_id = form.unit_id ? '' : 'Unit is required';
-    errors.value.leaseStartDate = form.leaseStartDate ? '' : 'Lease start date is required';
-
-
-    return Object.values(errors.value).every(error => error === '');
+const nextStep = () => {
+    if (validateStep(currentStep.value)) {
+        currentStep.value++;
+    }
 };
 
+const prevStep = () => {
+    currentStep.value--;
+};
+
+const validateStep = (step) => {
+    let isValid = true;
+
+    if (step === 1) {
+        if (!form.firstName) { form.errors.firstName = 'First name is required'; isValid = false; }
+        if (!form.lastName) { form.errors.lastName = 'Last name is required'; isValid = false; }
+        if (!form.email) { form.errors.email = 'Email is required'; isValid = false; }
+        if (!form.phone) { form.errors.phone = 'Phone is required'; isValid = false; }
+        if (!form.idNumber) { form.errors.idNumber = 'ID Number is required'; isValid = false; }
+    }
+
+    if (step === 2) {
+        // if (!form.employerName) { form.errors.employerName = 'Employer name is required'; isValid = false; }
+        // if (!form.monthlyIncome) { form.errors.monthlyIncome = 'Monthly income is required'; isValid = false; }
+    }
+
+    if (step === 3) {
+        if (!form.property_id) { form.errors.property_id = 'Property is required'; isValid = false; }
+        if (!form.unit_id) { form.errors.unit_id = 'Unit is required'; isValid = false; }
+        if (!form.leaseStartDate) { form.errors.leaseStartDate = 'Lease start date is required'; isValid = false; }
+        if (!form.rentAmount) { form.errors.rentAmount = 'Rent amount is required'; isValid = false; }
+    }
+
+    return isValid;
+};
 
 const { properties } = usePage().props;
-
 const units = ref([]);
 
 watch(() => form.property_id, (newVal) => {
@@ -49,186 +90,611 @@ watch(() => form.property_id, (newVal) => {
         const selectedProperty = properties.data.find(p => p.id === newVal);
         units.value = selectedProperty ? selectedProperty.units : [];
         form.unit_id = '';
+        if (units.value.length === 1) {
+            form.unit_id = units.value[0].id;
+            form.rentAmount = units.value[0].rentAmount;
+        }
     } else {
         units.value = [];
     }
 });
 
+watch(() => form.unit_id, (newVal) => {
+    if (newVal) {
+        const selectedUnit = units.value.find(u => u.id === newVal);
+        if (selectedUnit) {
+            form.rentAmount = selectedUnit.rentAmount;
+            // Auto-calculate standard deposits
+            form.securityDeposit = selectedUnit.rentAmount;
+            form.advanceRent = selectedUnit.rentAmount;
+        }
+    }
+});
 
 const submitForm = () => {
-    if (!validateForm()) {
-        return;
+    if (validateStep(currentStep.value)) {
+        form.post('/tenants/store', {
+            onFinish: () => {
+                form.reset();
+            },
+        });
     }
+};
 
-    form.post('/tenants/store', {
-        onFinish: () => {
-            form.reset();
-        },
-    });
+const handleFileUpload = (event, field) => {
+    form[field] = event.target.files[0];
+};
+
+const handleMultipleFiles = (event, field) => {
+    form[field] = Array.from(event.target.files);
 };
 </script>
 
 <template>
-    <Head title="Create Tenant" />
+    <Head title="Tenant Application Form" />
     <app-layout>
-        <div class="flex justify-center items-center min-h-screen  p-4">
-            <div class="bg-white dark:bg-gray-700 shadow-lg rounded-lg w-full max-w-3xl" style="padding: 2rem;">
-                <h1 class="text-2xl font-semibold mb-6 text-center text-gray-900 dark:text-gray-100">Create Tenant</h1>
+        <div class="flex justify-center dark:bg-gray-600 items-center min-h-screen p-4 bg-gray-50">
+            <div class="bg-white dark:bg-gray-600 shadow-xl rounded-lg w-full max-w-4xl">
+                <!-- Progress Steps -->
+                <div class="px-6 py-4 border-b border-blue-500">
+                    <div class="flex justify-between">
+                        <div v-for="step in totalSteps" :key="step" class="flex flex-col items-center">
+                            <div
+                                :class="{
+                                    'bg-blue-600 text-white': currentStep >= step,
+                                    'bg-gray-200 text-gray-600': currentStep < step
+                                }"
+                                class="w-8 h-8 rounded-full flex items-center justify-center font-semibold"
+                            >
+                                {{ step }}
+                            </div>
+                            <span class="text-xs mt-1 text-gray-600 dark:text-white">
+                                <span v-if="step === 1">Personal</span>
+                                <span v-if="step === 2">Employment</span>
+                                <span v-if="step === 3">Rental</span>
+                                <span v-if="step === 4">Payment</span>
+                                <span v-if="step === 5">Review</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
 
-                <form @submit.prevent="submitForm" class="space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="p-6">
+                    <h1 class="text-2xl font-semibold mb-6 text-gray-900 dark:text-white">Tenant Application Form</h1>
+
+                    <!-- Step 1: Personal Information -->
+                    <div v-show="currentStep === 1" class="space-y-6">
+                        <h2 class="text-xl font-medium text-gray-800 dark:text-white">Personal Information</h2>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-white">
+                                    First Name <span class="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    v-model="form.firstName"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
+                                    required
+                                />
+                                <span v-if="form.errors.firstName" class="text-red-500 text-sm">{{ form.errors.firstName }}</span>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-white">
+                                    Last Name <span class="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    v-model="form.lastName"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
+                                    required
+                                />
+                                <span v-if="form.errors.lastName" class="text-red-500 text-sm">{{ form.errors.lastName }}</span>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-white">
+                                    Email <span class="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="email"
+                                    v-model="form.email"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
+                                    required
+                                />
+                                <span v-if="form.errors.email" class="text-red-500 text-sm">{{ form.errors.email }}</span>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-white">
+                                    Phone Number <span class="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="tel"
+                                    v-model="form.phone"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
+                                    required
+                                />
+                                <span v-if="form.errors.phone" class="text-red-500 text-sm">{{ form.errors.phone }}</span>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-white">
+                                    National ID/Passport Number <span class="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    v-model="form.idNumber"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
+                                    required
+                                />
+                                <span v-if="form.errors.idNumber" class="text-red-500 text-sm">{{ form.errors.idNumber }}</span>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-white">
+                                    KRA PIN (Optional)
+                                </label>
+                                <input
+                                    type="text"
+                                    v-model="form.kraPin"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
+                                />
+                            </div>
+                        </div>
+
                         <div>
-                            <label for="firstName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                First Name <span class="text-red-500">*</span>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-white">
+                                Upload ID Copy (PDF/Image) <span class="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="file"
+                                @change="handleFileUpload($event, 'idCopy')"
+                                class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                accept=".pdf,.jpg,.jpeg,.png"
+                                required
+                            />
+                        </div>
+
+                        <div v-if="form.kraPin">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-white">
+                                Upload KRA PIN Certificate (PDF/Image)
+                            </label>
+                            <input
+                                type="file"
+                                @change="handleFileUpload($event, 'kraPinCopy')"
+                                class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                accept=".pdf,.jpg,.jpeg,.png"
+                            />
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Employment Information -->
+                    <div v-show="currentStep === 2" class="space-y-6">
+                        <h2 class="text-xl font-medium text-gray-800 dark:text-white">Employment & Financial Information</h2>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-white">
+                                    Employer Name <span class="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    v-model="form.employerName"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
+                                    required
+                                />
+                                <span v-if="form.errors.employerName" class="text-red-500 text-sm">{{ form.errors.employerName }}</span>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-white">
+                                    Job Title <span class="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    v-model="form.jobTitle"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
+                                    required
+                                />
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-white">
+                                    Monthly Income (KSh) <span class="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="number"
+                                    v-model="form.monthlyIncome"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
+                                    required
+                                />
+                                <span v-if="form.errors.monthlyIncome" class="text-red-500 text-sm">{{ form.errors.monthlyIncome }}</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-white">
+                                Upload Employment Letter (PDF/Image) <span class="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="file"
+                                @change="handleFileUpload($event, 'employmentLetter')"
+                                class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                accept=".pdf,.jpg,.jpeg,.png"
+                                required
+                            />
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-white">
+                                Upload Recent Payslips (Last 3 months) <span class="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="file"
+                                @change="handleMultipleFiles($event, 'payslips')"
+                                class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                accept=".pdf,.jpg,.jpeg,.png"
+                                multiple
+                                required
+                            />
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-white">
+                                Upload Bank Statements (Last 3 months) <span class="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="file"
+                                @change="handleMultipleFiles($event, 'bankStatements')"
+                                class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                accept=".pdf,.jpg,.jpeg,.png"
+                                multiple
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Rental Information -->
+                    <div v-show="currentStep === 3" class="space-y-6">
+                        <h2 class="text-xl font-medium text-gray-800 dark:text-white">Rental Information</h2>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-white">
+                                    Property <span class="text-red-500">*</span>
+                                </label>
+                                <select
+                                    v-model="form.property_id"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
+                                    required
+                                >
+                                    <option value="">Select Property</option>
+                                    <option v-for="property in properties.data" :key="property.id" :value="property.id">
+                                        {{ property.propertyName }}
+                                    </option>
+                                </select>
+                                <span v-if="form.errors.property_id" class="text-red-500 text-sm">{{ form.errors.property_id }}</span>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-white">
+                                    Unit <span class="text-red-500">*</span>
+                                </label>
+                                <select
+                                    v-model="form.unit_id"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
+                                    required
+                                    :disabled="units.length === 0"
+                                >
+                                    <option disabled value="">Select Unit</option>
+                                    <option
+                                        v-for="unit in units"
+                                        :key="unit.id"
+                                        :value="unit.id"
+                                        :disabled="unit.status === 'occupied'"
+                                    >
+                                        {{ unit.name }} - {{ unit.status === 'occupied' ? 'Occupied' : 'KSh ' + unit.rentAmount.toLocaleString() }}
+                                    </option>
+                                </select>
+                                <span v-if="form.errors.unit_id" class="text-red-500 text-sm">{{ form.errors.unit_id }}</span>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-white">
+                                    Lease Start Date <span class="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="date"
+                                    v-model="form.leaseStartDate"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
+                                    required
+                                />
+                                <span v-if="form.errors.leaseStartDate" class="text-red-500 text-sm">{{ form.errors.leaseStartDate }}</span>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-white">
+                                    Lease Duration (Months) <span class="text-red-500">*</span>
+                                </label>
+                                <select
+                                    v-model="form.leaseDuration"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
+                                    required
+                                >
+                                    <option value="6">6 Months</option>
+                                    <option value="12">12 Months</option>
+                                    <option value="24">24 Months</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-white">
+                                    Monthly Rent (KSh) <span class="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="number"
+                                    v-model="form.rentAmount"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
+                                    required
+                                    :readonly="form.unit_id"
+                                />
+                                <span v-if="form.errors.rentAmount" class="text-red-500 text-sm">{{ form.errors.rentAmount }}</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-white">
+                                Emergency Contact Name <span class="text-red-500">*</span>
                             </label>
                             <input
                                 type="text"
-                                id="firstName"
-                                v-model="form.firstName"
-                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:text-white dark:border-gray-500"
+                                v-model="form.emergencyContactName"
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
                                 required
                             />
-                            <span v-if="form.errors.firstName" class="text-red-500 text-sm">{{ form.errors.firstName }}</span>
                         </div>
 
                         <div>
-                            <label for="lastName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Last Name <span class="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                id="lastName"
-                                v-model="form.lastName"
-                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:text-white dark:border-gray-500"
-                                required
-                            />
-                            <span v-if="form.errors.lastName" class="text-red-500 text-sm">{{ form.errors.lastName }}</span>
-                        </div>
-
-                        <div>
-                            <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Email <span class="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="email"
-                                id="email"
-                                v-model="form.email"
-                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:text-white dark:border-gray-500"
-                                required
-                            />
-                            <span v-if="form.errors.email" class="text-red-500 text-sm">{{ form.errors.email }}</span>
-                        </div>
-
-                        <div>
-                            <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Phone <span class="text-red-500">*</span>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-white">
+                                Emergency Contact Phone <span class="text-red-500">*</span>
                             </label>
                             <input
                                 type="tel"
-                                id="phone"
-                                v-model="form.phone"
-                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:text-white dark:border-gray-500"
+                                v-model="form.emergencyContactPhone"
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
                                 required
                             />
-                            <span v-if="form.errors.phone" class="text-red-500 text-sm">{{ form.errors.phone }}</span>
                         </div>
+                    </div>
 
-                        <div>
-                            <label for="property" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Property <span class="text-red-500">*</span>
-                            </label>
-                            <select
-                                id="property"
-                                v-model="form.property_id"
-                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:text-white dark:border-gray-500"
-                                required
-                            >
-                                <option value="">Select Property</option>
-                                <option v-for="property in properties.data" :key="property.id" :value="property.id">
-                                    {{ property.propertyName }}
-                                </option>
-                            </select>
-                            <span v-if="form.errors.property_id" class="text-red-500 text-sm">{{ form.errors.property_id }}</span>
-                        </div>
+                    <!-- Step 4: Payment Information -->
+                    <div v-show="currentStep === 4" class="space-y-6">
+                        <h2 class="text-xl font-medium text-gray-800 dark:text-white">Payment Information</h2>
 
-                        <div>
-                            <label for="unit" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Unit <span class="text-red-500">*</span>
-                            </label>
-                            <select
-                                id="unit"
-                                v-model="form.unit_id"
-                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:text-white dark:border-gray-500"
-                                required
-                                :disabled="units.length === 0"
-                            >
-                                <option disabled value="">Select Unit</option>
-                                <option
-                                    v-for="unit in units"
-                                    :key="unit.id"
-                                    :value="unit.id"
-                                    :disabled="unit.status === 'occupied'"
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-white">
+                                    Security Deposit (KSh) <span class="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="number"
+                                    v-model="form.securityDeposit"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
+                                    required
+                                />
+                                <p class="text-xs text-gray-500 mt-1">Typically 1 month's rent (refundable)</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-white">
+                                    Advance Rent (KSh) <span class="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="number"
+                                    v-model="form.advanceRent"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
+                                    required
+                                />
+                                <p class="text-xs text-gray-500 mt-1">Typically 1 month's rent</p>
+                            </div>
+
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-white">
+                                    Preferred Payment Method <span class="text-red-500">*</span>
+                                </label>
+                                <select
+                                    v-model="form.paymentMethod"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
+                                    required
                                 >
-                                    {{ unit.name }} - {{ unit.status === 'occupied' ? 'occupied' : unit.rentAmount }}
-                                </option>
-                            </select>
-
-                            <span v-if="form.errors.unit_id" class="text-red-500 text-sm">{{ form.errors.unit_id }}</span>
+                                    <option value="bank">Bank Transfer</option>
+                                    <option value="mpesa">M-Pesa</option>
+                                    <option value="cheque">Cheque</option>
+                                    <option value="cash">Cash</option>
+                                </select>
+                            </div>
                         </div>
 
                         <div>
-                            <label for="leaseStartDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Lease Start Date <span class="text-red-500">*</span>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-white">
+                                Upload Reference Letters (Previous Landlords/Employers)
                             </label>
                             <input
-                                type="date"
-                                id="leaseStartDate"
-                                v-model="form.leaseStartDate"
-                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:text-white dark:border-gray-500"
+                                type="file"
+                                @change="handleMultipleFiles($event, 'references')"
+                                class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                accept=".pdf,.jpg,.jpeg,.png"
+                                multiple
+                            />
+                        </div>
+                    </div>
+
+                    <!-- Step 5: Review and Submit -->
+                    <div v-show="currentStep === 5" class="space-y-6">
+                        <h2 class="text-xl font-medium text-gray-800 dark:text-white">Review Your Application</h2>
+
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="font-medium text-lg mb-3">Personal Information</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-sm text-gray-500">Full Name</p>
+                                    <p class="font-medium">{{ form.firstName }} {{ form.lastName }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Email</p>
+                                    <p class="font-medium">{{ form.email }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Phone</p>
+                                    <p class="font-medium">{{ form.phone }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">ID Number</p>
+                                    <p class="font-medium">{{ form.idNumber }}</p>
+                                </div>
+                                <div v-if="form.kraPin">
+                                    <p class="text-sm text-gray-500">KRA PIN</p>
+                                    <p class="font-medium">{{ form.kraPin }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="font-medium text-lg mb-3">Employment Information</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-sm text-gray-500">Employer</p>
+                                    <p class="font-medium">{{ form.employerName }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Job Title</p>
+                                    <p class="font-medium">{{ form.jobTitle }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Monthly Income</p>
+                                    <p class="font-medium">KSh {{ form.monthlyIncome ? form.monthlyIncome.toLocaleString() : '' }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="font-medium text-lg mb-3">Rental Information</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-sm text-gray-500">Property</p>
+                                    <p class="font-medium">
+                                        {{ properties.data.find(p => p.id === form.property_id)?.propertyName || 'Not selected' }}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Unit</p>
+                                    <p class="font-medium">
+                                        {{ units.find(u => u.id === form.unit_id)?.name || 'Not selected' }}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Lease Start Date</p>
+                                    <p class="font-medium">{{ form.leaseStartDate }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Lease Duration</p>
+                                    <p class="font-medium">{{ form.leaseDuration }} months</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Monthly Rent</p>
+                                    <p class="font-medium">KSh {{ form.rentAmount ? form.rentAmount.toLocaleString() : '' }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Emergency Contact</p>
+                                    <p class="font-medium">{{ form.emergencyContactName }} ({{ form.emergencyContactPhone }})</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h3 class="font-medium text-lg mb-3">Payment Information</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-sm text-gray-500">Security Deposit</p>
+                                    <p class="font-medium">KSh {{ form.securityDeposit ? form.securityDeposit.toLocaleString() : '' }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Advance Rent</p>
+                                    <p class="font-medium">KSh {{ form.advanceRent ? form.advanceRent.toLocaleString() : '' }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Total Initial Payment</p>
+                                    <p class="font-medium text-blue-600">
+                                        KSh {{ (parseInt(form.securityDeposit || 0) + parseInt(form.advanceRent || 0) ).toLocaleString() }}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Payment Method</p>
+                                    <p class="font-medium">{{ form.paymentMethod }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-white">Additional Notes</label>
+                            <textarea
+                                v-model="form.notes"
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
+                                rows="3"
+                            ></textarea>
+                        </div>
+
+                        <div class="flex items-center">
+                            <input
+                                id="terms"
+                                type="checkbox"
+                                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                                 required
                             />
-                            <span v-if="form.errors.leaseStartDate" class="text-red-500 text-sm">{{ form.errors.leaseStartDate }}</span>
-                        </div>
-
-                        <div>
-                            <label for="account_number" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Account Number <span class="text-gray-500">(optional)</span>
+                            <label for="terms" class="ml-2 block text-sm text-gray-700 dark:text-white">
+                                I agree to the terms and conditions of the tenancy agreement
                             </label>
-                            <input
-                                type="text"
-                                id="account_number"
-                                v-model="form.accountNumber"
-                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:text-white dark:border-gray-500"
-                                min="1"
-                                max="31"
-                            />
-                            <span v-if="form.errors.accountNumber" class="text-red-500 text-sm">{{ form.errors.accountNumber }}</span>
                         </div>
                     </div>
 
-                    <div>
-                        <label for="notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Notes</label>
-                        <textarea
-                            id="notes"
-                            v-model="form.notes"
-                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:text-white dark:border-gray-500"
-                            rows="3"
-                        ></textarea>
-                        <span v-if="form.errors.notes" class="text-red-500 text-sm">{{ form.errors.notes }}</span>
-                    </div>
-
-                    <div class="flex justify-center mt-6">
+                    <!-- Navigation Buttons -->
+                    <div class="flex justify-between mt-8">
                         <button
-                            type="submit"
-                            class="flex justify-between px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out dark:bg-blue-700 dark:hover:bg-blue-800"
+                            v-if="currentStep > 1"
+                            @click="prevStep"
+                            type="button"
+                            class="inline-flex items-center px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        >
+                            <ArrowLeftIcon class="w-5 h-5 mr-2" />
+                            Previous
+                        </button>
+                        <div v-else></div> <!-- Empty div for spacing -->
+
+                        <button
+                            v-if="currentStep < totalSteps"
+                            @click="nextStep"
+                            type="button"
+                            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        >
+                            Next
+                            <ArrowRightIcon class="w-5 h-5 ml-2" />
+                        </button>
+
+                        <button
+                            v-if="currentStep === totalSteps"
+                            @click="submitForm"
+                            type="button"
+                            class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                             :disabled="form.processing"
                         >
                             <PlusIcon class="w-5 h-5 mr-2" />
-                            <span v-if="!form.processing">Submit</span>
+                            <span v-if="!form.processing">Submit Application</span>
                             <span v-else>Processing...</span>
                         </button>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     </app-layout>

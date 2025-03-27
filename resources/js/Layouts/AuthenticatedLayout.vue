@@ -145,7 +145,7 @@ const logout = () => {
                                 <i class="fas fa-users mr-2"></i>
                                 <span>Users</span>
                             </a>
-                            <a href="/roles" class="flex items-center py-2 text-white hover:bg-blue-700 rounded">
+                            <a href="/roles                 " class="flex items-center py-2 text-white hover:bg-blue-700 rounded">
                                 <i class="fas fa-key mr-2"></i>
                                 <span>Roles</span>
                             </a>

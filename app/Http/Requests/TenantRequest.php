@@ -24,11 +24,23 @@ class TenantRequest extends FormRequest
         return [
             'firstName' => 'required|string|max:255',
             'lastName' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:tenants,email',
-            'phone' => 'required|string|size:10|unique:tenants,phone',
-            'accountNumber' => 'nullable|string|max:50|unique:tenants,account_number',
-            'leaseStartDate' => 'required|date',
-            'unit_id' => 'required|exists:units,id',
+            'email' => 'required|email|unique:tenants,email',
+            'phone' => 'required|string|max:20',
+            'address' => 'nullable|string',
+            'lease_start_date' => 'required|date',
+            'lease_end_date' => 'nullable|date|after_or_equal:lease_start_date',
+            'account_number' => 'nullable|string|max:50',
+            'id_number' => 'required|string|unique:tenants,id_number',
+            'kra_pin' => 'nullable|string|regex:/^[A-Z]{1}\d{9}[A-Z]{1}$/',
+            'gender' => 'nullable|in:male,female,other',
+            'date_of_birth' => 'nullable|date|before:-18 years',
+            'marital_status' => 'nullable|in:single,married,divorced,widowed',
+            'city' => 'nullable|string|max:100',
+            'county' => 'nullable|string|max:100',
+            'postal_code' => 'nullable|string|max:20',
+            'emergency_contact_name' => 'required|string|max:255',
+            'emergency_contact_phone' => 'required|string|max:20',
+            'emergency_contact_relationship' => 'nullable|string|max:100',
         ];
     }
     /**

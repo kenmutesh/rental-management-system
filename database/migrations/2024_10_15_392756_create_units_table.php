@@ -17,6 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('property_id');
             $table->unsignedBigInteger('occupied_by')->nullable();
             $table->float('rentAmount', 10,2);
+            $table->string('accountNumber')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();
 

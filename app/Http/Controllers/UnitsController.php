@@ -83,6 +83,7 @@ class UnitsController extends Controller
             'name' => $request->name,
             'property_id' => $request->property_id,
             'rentAmount' => $request->rentAmount,
+            'accountNumber' => $request->accountNumber,
             'notes' => $request->notes,
         ]);
 

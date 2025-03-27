@@ -87,16 +87,28 @@ class TenantsController extends Controller
 
         try {
             // Tenant creation logic
-            $tenant = Tenants::create([
+            $tenant = Tenant::create([
                 'firstName' => $request->firstName,
                 'lastName' => $request->lastName,
                 'email' => $request->email,
                 'phone' => $request->phone,
-                'address' => 'test',
-                'account_number' => $request->accountNumber,
-                'lease_start_date' => $request->leaseStartDate,
-                'balance' => 0,
+                'address' => $request->address,
+                'account_number' => $request->account_number,
+                'lease_start_date' => $request->lease_start_date,
+                'lease_end_date' => $request->lease_end_date,
+                'id_number' => $request->id_number,
+                'kra_pin' => $request->kra_pin,
+                'gender' => $request->gender,
+                'date_of_birth' => $request->date_of_birth,
+                'marital_status' => $request->marital_status,
+                'city' => $request->city,
+                'county' => $request->county,
+                'postal_code' => $request->postal_code,
+                'emergency_contact_name' => $request->emergency_contact_name,
+                'emergency_contact_phone' => $request->emergency_contact_phone,
+                'emergency_contact_relationship' => $request->emergency_contact_relationship,
             ]);
+
 
             $unit = Units::find($request->unit_id);
 
