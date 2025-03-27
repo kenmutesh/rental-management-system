@@ -15,13 +15,11 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->unsignedBigInteger('property_id');
-            $table->unsignedBigInteger('occupied_by')->nullable();
             $table->float('rentAmount', 10,2);
             $table->string('accountNumber')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();
 
-            $table->foreign('occupied_by')->references('id')->on('tenants')->onDelete('cascade');
             $table->foreign('property_id')->references('id')->on('properties')->onDelete('cascade');
         });
     }

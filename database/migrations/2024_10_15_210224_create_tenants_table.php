@@ -13,29 +13,41 @@ return new class extends Migration
     {
         Schema::create('tenants', function (Blueprint $table) {
             $table->id();
-            $table->string('firstName');
-            $table->string('lastName');
+            $table->string('first_name');
+            $table->string('last_name');
             $table->string('email')->unique();
-            $table->string('phone')->nullable();
-            $table->text('address')->nullable();
-            $table->date('lease_start_date');
-            $table->string('account_number')->nullable();
-            $table->date('lease_end_date')->nullable();
-            $table->decimal('balance', 10, 2)->default(0);
-            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->string('phone');
             $table->string('id_number')->unique();
             $table->string('kra_pin')->nullable();
+            $table->string('employer_name')->nullable();
+            $table->string('job_title')->nullable();
+            $table->decimal('monthly_income', 10, 2)->nullable();
+            $table->unsignedBigInteger('property_id');
+            $table->unsignedBigInteger('unit_id');
+            $table->date('lease_start_date');
+            $table->decimal('rent_amount', 10, 2);
+            $table->decimal('security_deposit', 10, 2);
+            $table->decimal('advance_rent', 10, 2);
+            $table->string('payment_method');
+            $table->boolean('apply_discount')->default(false);
+            $table->string('discount_type')->nullable();
+            $table->decimal('discount_value', 10, 2)->nullable();
+            $table->string('emergency_contact_name');
+            $table->string('emergency_contact_phone');
+            $table->text('notes')->nullable();
+            $table->string('account_number')->nullable();
+            $table->string('address')->nullable();
             $table->string('gender')->nullable();
             $table->date('date_of_birth')->nullable();
             $table->string('marital_status')->nullable();
             $table->string('city')->nullable();
             $table->string('county')->nullable();
             $table->string('postal_code')->nullable();
-            $table->string('emergency_contact_name');
-            $table->string('emergency_contact_phone');
             $table->string('emergency_contact_relationship')->nullable();
             $table->timestamps();
-            $table->softDeletes();
+
+            $table->foreign('property_id')->references('id')->on('properties');
+            $table->foreign('unit_id')->references('id')->on('units');
         });
 
         // Employment details table

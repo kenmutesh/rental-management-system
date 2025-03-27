@@ -9,7 +9,7 @@ const form = useForm({
     lastName: '',
     email: '',
     phone: '',
-    idNumber: '',
+    id_number: '',
     kraPin: '',
 
     // Employment Information
@@ -22,7 +22,7 @@ const form = useForm({
     // Rental Information
     property_id: '',
     unit_id: '',
-    leaseStartDate: '',
+    lease_start_date: '',
     rentAmount: '',
     depositDuration: '1',
 
@@ -41,8 +41,8 @@ const form = useForm({
     references: [],
 
     // Additional Information
-    emergencyContactName: '',
-    emergencyContactPhone: '',
+    emergency_contact_name: '',
+    emergency_contact_phone: '',
     notes: ''
 });
 
@@ -84,7 +84,7 @@ const validateStep = (step) => {
         if (!form.lastName.trim()) { form.setError('lastName', 'Last name is required'); isValid = false; }
         if (!form.email.trim()) { form.setError('email', 'Email is required'); isValid = false; }
         if (!form.phone.trim()) { form.setError('phone', 'Phone is required'); isValid = false; }
-        if (!form.idNumber.trim()) { form.setError('idNumber', 'ID Number is required'); isValid = false; }
+        if (!form.id_number.trim()) { form.setError('id_number', 'ID Number is required'); isValid = false; }
         if (!form.idCopy) { form.setError('idCopy', 'ID copy is required'); isValid = false; }
     }
 
@@ -97,10 +97,10 @@ const validateStep = (step) => {
     if (step === 3) {
         if (!form.property_id) { form.setError('property_id', 'Property is required'); isValid = false; }
         if (!form.unit_id) { form.setError('unit_id', 'Unit is required'); isValid = false; }
-        if (!form.leaseStartDate) { form.setError('leaseStartDate', 'Lease start date is required'); isValid = false; }
+        if (!form.lease_start_date) { form.setError('lease_start_date', 'Lease start date is required'); isValid = false; }
         if (!form.rentAmount) { form.setError('rentAmount', 'Rent amount is required'); isValid = false; }
-        if (!form.emergencyContactName.trim()) { form.setError('emergencyContactName', 'Emergency contact name is required'); isValid = false; }
-        if (!form.emergencyContactPhone.trim()) { form.setError('emergencyContactPhone', 'Emergency contact phone is required'); isValid = false; }
+        if (!form.emergency_contact_name.trim()) { form.setError('emergency_contact_name', 'Emergency contact name is required'); isValid = false; }
+        if (!form.emergency_contact_phone.trim()) { form.setError('emergency_contact_phone', 'Emergency contact phone is required'); isValid = false; }
     }
 
     if (step === 4) {
@@ -314,12 +314,12 @@ const handleMultipleFiles = (event, field) => {
                                 </label>
                                 <input
                                     type="text"
-                                    v-model="form.idNumber"
-                                    @input="form.clearErrors('idNumber')"
+                                    v-model="form.id_number"
+                                    @input="form.clearErrors('id_number')"
                                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
                                     required
                                 />
-                                <span v-if="form.errors.idNumber" class="text-red-500 text-sm">{{ form.errors.idNumber }}</span>
+                                <span v-if="form.errors.id_number" class="text-red-500 text-sm">{{ form.errors.id_number }}</span>
                             </div>
 
                             <div>
@@ -501,12 +501,12 @@ const handleMultipleFiles = (event, field) => {
                                 </label>
                                 <input
                                     type="date"
-                                    v-model="form.leaseStartDate"
-                                    @change="form.clearErrors('leaseStartDate')"
+                                    v-model="form.lease_start_date"
+                                    @change="form.clearErrors('lease_start_date')"
                                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
                                     required
                                 />
-                                <span v-if="form.errors.leaseStartDate" class="text-red-500 text-sm">{{ form.errors.leaseStartDate }}</span>
+                                <span v-if="form.errors.lease_start_date" class="text-red-500 text-sm">{{ form.errors.lease_start_date }}</span>
                             </div>
 
                             <div>
@@ -530,12 +530,12 @@ const handleMultipleFiles = (event, field) => {
                                 </label>
                                 <input
                                     type="text"
-                                    v-model="form.emergencyContactName"
-                                    @input="form.clearErrors('emergencyContactName')"
+                                    v-model="form.emergency_contact_name"
+                                    @input="form.clearErrors('emergency_contact_name')"
                                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
                                     required
                                 />
-                                <span v-if="form.errors.emergencyContactName" class="text-red-500 text-sm">{{ form.errors.emergencyContactName }}</span>
+                                <span v-if="form.errors.emergency_contact_name" class="text-red-500 text-sm">{{ form.errors.emergency_contact_name }}</span>
                             </div>
 
                             <div>
@@ -544,12 +544,12 @@ const handleMultipleFiles = (event, field) => {
                                 </label>
                                 <input
                                     type="tel"
-                                    v-model="form.emergencyContactPhone"
-                                    @input="form.clearErrors('emergencyContactPhone')"
+                                    v-model="form.emergency_contact_phone"
+                                    @input="form.clearErrors('emergency_contact_phone')"
                                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
                                     required
                                 />
-                                <span v-if="form.errors.emergencyContactPhone" class="text-red-500 text-sm">{{ form.errors.emergencyContactPhone }}</span>
+                                <span v-if="form.errors.emergency_contact_phone" class="text-red-500 text-sm">{{ form.errors.emergency_contact_phone }}</span>
                             </div>
                         </div>
                     </div>
@@ -761,7 +761,7 @@ const handleMultipleFiles = (event, field) => {
                                 </div>
                                 <div>
                                     <p class="text-sm text-gray-500">ID Number</p>
-                                    <p class="font-medium">{{ form.idNumber }}</p>
+                                    <p class="font-medium">{{ form.id_number }}</p>
                                 </div>
                                 <div v-if="form.kraPin">
                                     <p class="text-sm text-gray-500">KRA PIN</p>
@@ -805,7 +805,7 @@ const handleMultipleFiles = (event, field) => {
                                 </div>
                                 <div>
                                     <p class="text-sm text-gray-500">Lease Start Date</p>
-                                    <p class="font-medium">{{ form.leaseStartDate }}</p>
+                                    <p class="font-medium">{{ form.lease_start_date }}</p>
                                 </div>
                                 <div>
                                     <p class="text-sm text-gray-500">Monthly Rent</p>
@@ -820,7 +820,7 @@ const handleMultipleFiles = (event, field) => {
                                 </div>
                                 <div>
                                     <p class="text-sm text-gray-500">Emergency Contact</p>
-                                    <p class="font-medium">{{ form.emergencyContactName }} ({{ form.emergencyContactPhone }})</p>
+                                    <p class="font-medium">{{ form.emergency_contact_name }} ({{ form.emergency_contact_phone }})</p>
                                 </div>
                             </div>
                         </div>
