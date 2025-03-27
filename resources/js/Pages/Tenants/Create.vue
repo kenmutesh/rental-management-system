@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { Head, useForm, usePage } from '@inertiajs/vue3';
 import { PlusIcon, ArrowRightIcon, ArrowLeftIcon } from '@heroicons/vue/outline';
 
@@ -23,8 +23,12 @@ const form = useForm({
     property_id: '',
     unit_id: '',
     leaseStartDate: '',
-    leaseDuration: '12', // Default to 12 months
     rentAmount: '',
+    moveInDate: new Date().toISOString().split('T')[0],
+    proratedDays: 0,
+    proratedDiscount: 0,
+    proratedType: 'percentage',
+    depositDuration: '1',
 
     // Financial Information
     securityDeposit: '',
@@ -56,6 +60,20 @@ const prevStep = () => {
     currentStep.value--;
 };
 
+function formatCurrency(amount) {
+    return new Intl.NumberFormat('en-KE', {
+        style: 'currency',
+        currency: 'KES'
+    }).format(amount);
+}
+
+const updateDepositAmount = () => {
+    if (form.depositDuration !== 'custom') {
+        const rentAmount = form.rentAmount;
+        form.securityDeposit = rentAmount * parseInt(form.depositDuration);
+    }
+};
+
 const validateStep = (step) => {
     let isValid = true;
 
@@ -68,8 +86,8 @@ const validateStep = (step) => {
     }
 
     if (step === 2) {
-        // if (!form.employerName) { form.errors.employerName = 'Employer name is required'; isValid = false; }
-        // if (!form.monthlyIncome) { form.errors.monthlyIncome = 'Monthly income is required'; isValid = false; }
+        if (!form.employerName) { form.errors.employerName = 'Employer name is required'; isValid = false; }
+        if (!form.monthlyIncome) { form.errors.monthlyIncome = 'Monthly income is required'; isValid = false; }
     }
 
     if (step === 3) {
@@ -84,6 +102,46 @@ const validateStep = (step) => {
 
 const { properties } = usePage().props;
 const units = ref([]);
+
+const calculateProratedRent = () => {
+    if (!form.unit_id || !form.moveInDate) return;
+
+    const moveInDate = new Date(form.moveInDate);
+    const year = moveInDate.getFullYear();
+    const month = moveInDate.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const dayOfMonth = moveInDate.getDate();
+
+    form.proratedDays = daysInMonth - dayOfMonth + 1; // Including move-in day
+
+    // Recalculate security deposit if needed
+    if (form.depositDuration !== 'custom') {
+        const selectedUnit = units.value.find(u => u.id === form.unit_id);
+        if (selectedUnit) {
+            form.securityDeposit = selectedUnit.rentAmount * parseInt(form.depositDuration);
+        }
+    }
+};
+
+const calculateProratedAmount = () => {
+    if (form.proratedDays <= 0) return form.rentAmount;
+
+    const dailyRate = form.rentAmount / 30; // Standard 30-day month
+    let proratedAmount = dailyRate * form.proratedDays;
+
+    if (form.proratedType === 'percentage' && form.proratedDiscount > 0) {
+        proratedAmount *= (1 - (form.proratedDiscount / 100));
+    } else if (form.proratedType === 'fixed' && form.proratedDiscount > 0) {
+        proratedAmount = Math.max(0, proratedAmount - form.proratedDiscount);
+    }
+
+    return Math.round(proratedAmount);
+};
+
+const getFirstPaymentAmount = computed(() => {
+    const proratedAmount = form.proratedDays > 0 ? calculateProratedAmount() : 0;
+    return proratedAmount + parseInt(form.advanceRent || 0) + parseInt(form.securityDeposit || 0);
+});
 
 watch(() => form.property_id, (newVal) => {
     if (newVal) {
@@ -104,11 +162,19 @@ watch(() => form.unit_id, (newVal) => {
         const selectedUnit = units.value.find(u => u.id === newVal);
         if (selectedUnit) {
             form.rentAmount = selectedUnit.rentAmount;
-            // Auto-calculate standard deposits
-            form.securityDeposit = selectedUnit.rentAmount;
+            form.depositDuration = '1'; // Reset to default when unit changes
+            form.securityDeposit = selectedUnit.rentAmount * parseInt(form.depositDuration);
             form.advanceRent = selectedUnit.rentAmount;
         }
     }
+});
+
+watch(() => [form.unit_id, form.moveInDate], () => {
+    calculateProratedRent();
+});
+
+watch(() => [form.depositDuration, form.proratedDiscount, form.proratedType], () => {
+    calculateProratedRent();
 });
 
 const submitForm = () => {
@@ -416,17 +482,16 @@ const handleMultipleFiles = (event, field) => {
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-white">
-                                    Lease Duration (Months) <span class="text-red-500">*</span>
+                                    Move-in Date <span class="text-red-500">*</span>
                                 </label>
-                                <select
-                                    v-model="form.leaseDuration"
+                                <input
+                                    type="date"
+                                    v-model="form.moveInDate"
+                                    @change="calculateProratedRent"
                                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
                                     required
-                                >
-                                    <option value="6">6 Months</option>
-                                    <option value="12">12 Months</option>
-                                    <option value="24">24 Months</option>
-                                </select>
+                                    :min="form.leaseStartDate"
+                                />
                             </div>
 
                             <div>
@@ -441,6 +506,71 @@ const handleMultipleFiles = (event, field) => {
                                     :readonly="form.unit_id"
                                 />
                                 <span v-if="form.errors.rentAmount" class="text-red-500 text-sm">{{ form.errors.rentAmount }}</span>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-white">
+                                    Prorated Rent Type
+                                </label>
+                                <select
+                                    v-model="form.proratedType"
+                                    @change="calculateProratedRent"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
+                                >
+                                    <option value="percentage">Percentage Discount</option>
+                                    <option value="fixed">Fixed Amount</option>
+                                </select>
+                            </div>
+
+                            <div v-if="form.proratedType === 'percentage'">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-white">
+                                    Discount Percentage
+                                </label>
+                                <input
+                                    type="number"
+                                    v-model="form.proratedDiscount"
+                                    @input="calculateProratedRent"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
+                                    placeholder="E.g. 50 for 50%"
+                                    min="0"
+                                    max="100"
+                                />
+                            </div>
+
+                            <div v-if="form.proratedType === 'fixed'">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-white">
+                                    Discount Amount (KSh)
+                                </label>
+                                <input
+                                    type="number"
+                                    v-model="form.proratedDiscount"
+                                    @input="calculateProratedRent"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
+                                    placeholder="E.g. 5000"
+                                    min="0"
+                                />
+                            </div>
+                        </div>
+
+                        <!-- Rent Summary -->
+                        <div class="p-4 bg-gray-50 rounded-lg">
+                            <h3 class="font-medium text-gray-700 mb-2">Rent Summary</h3>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="text-sm text-gray-500">Monthly Rent:</div>
+                                <div class="text-right">{{ formatCurrency(form.rentAmount) }}</div>
+
+                                <template v-if="form.proratedDays > 0">
+                                    <div class="text-sm text-gray-500">Days Remaining:</div>
+                                    <div class="text-right">{{ form.proratedDays }} days</div>
+
+                                    <div class="text-sm text-gray-500">Prorated Amount:</div>
+                                    <div class="text-right">{{ formatCurrency(calculateProratedAmount()) }}</div>
+                                </template>
+
+                                <div class="font-medium">First Payment Due:</div>
+                                <div class="text-right font-medium text-blue-600">
+                                    {{ formatCurrency(getFirstPaymentAmount) }}
+                                </div>
                             </div>
                         </div>
 
@@ -474,6 +604,24 @@ const handleMultipleFiles = (event, field) => {
                         <h2 class="text-xl font-medium text-gray-800 dark:text-white">Payment Information</h2>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Security Deposit Section with Duration -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-white">
+                                    Security Deposit Duration <span class="text-red-500">*</span>
+                                </label>
+                                <select
+                                    v-model="form.depositDuration"
+                                    @change="updateDepositAmount"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
+                                    required
+                                >
+                                    <option value="1">1 Month</option>
+                                    <option value="2">2 Months</option>
+                                    <option value="3">3 Months</option>
+                                    <option value="custom">Custom</option>
+                                </select>
+                            </div>
+
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-white">
                                     Security Deposit (KSh) <span class="text-red-500">*</span>
@@ -481,10 +629,16 @@ const handleMultipleFiles = (event, field) => {
                                 <input
                                     type="number"
                                     v-model="form.securityDeposit"
+                                    :readonly="form.depositDuration !== 'custom'"
                                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500"
                                     required
                                 />
-                                <p class="text-xs text-gray-500 mt-1">Typically 1 month's rent (refundable)</p>
+                                <p class="text-xs text-gray-500 mt-1" v-if="form.depositDuration !== 'custom'">
+                                    Equivalent to {{ form.depositDuration }} month(s) rent ({{ formatCurrency(form.securityDeposit) }})
+                                </p>
+                                <p class="text-xs text-gray-500 mt-1" v-else>
+                                    Enter custom deposit amount
+                                </p>
                             </div>
 
                             <div>
@@ -574,7 +728,7 @@ const handleMultipleFiles = (event, field) => {
                                 </div>
                                 <div>
                                     <p class="text-sm text-gray-500">Monthly Income</p>
-                                    <p class="font-medium">KSh {{ form.monthlyIncome ? form.monthlyIncome.toLocaleString() : '' }}</p>
+                                    <p class="font-medium">{{ formatCurrency(form.monthlyIncome) }}</p>
                                 </div>
                             </div>
                         </div>
@@ -599,12 +753,16 @@ const handleMultipleFiles = (event, field) => {
                                     <p class="font-medium">{{ form.leaseStartDate }}</p>
                                 </div>
                                 <div>
-                                    <p class="text-sm text-gray-500">Lease Duration</p>
-                                    <p class="font-medium">{{ form.leaseDuration }} months</p>
+                                    <p class="text-sm text-gray-500">Move-in Date</p>
+                                    <p class="font-medium">{{ form.moveInDate }}</p>
                                 </div>
                                 <div>
                                     <p class="text-sm text-gray-500">Monthly Rent</p>
-                                    <p class="font-medium">KSh {{ form.rentAmount ? form.rentAmount.toLocaleString() : '' }}</p>
+                                    <p class="font-medium">{{ formatCurrency(form.rentAmount) }}</p>
+                                </div>
+                                <div v-if="form.proratedDays > 0">
+                                    <p class="text-sm text-gray-500">Prorated Rent</p>
+                                    <p class="font-medium">{{ formatCurrency(calculateProratedAmount()) }}</p>
                                 </div>
                                 <div>
                                     <p class="text-sm text-gray-500">Emergency Contact</p>
@@ -618,16 +776,16 @@ const handleMultipleFiles = (event, field) => {
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <p class="text-sm text-gray-500">Security Deposit</p>
-                                    <p class="font-medium">KSh {{ form.securityDeposit ? form.securityDeposit.toLocaleString() : '' }}</p>
+                                    <p class="font-medium">{{ formatCurrency(form.securityDeposit) }}</p>
                                 </div>
                                 <div>
                                     <p class="text-sm text-gray-500">Advance Rent</p>
-                                    <p class="font-medium">KSh {{ form.advanceRent ? form.advanceRent.toLocaleString() : '' }}</p>
+                                    <p class="font-medium">{{ formatCurrency(form.advanceRent) }}</p>
                                 </div>
                                 <div>
                                     <p class="text-sm text-gray-500">Total Initial Payment</p>
                                     <p class="font-medium text-blue-600">
-                                        KSh {{ (parseInt(form.securityDeposit || 0) + parseInt(form.advanceRent || 0) ).toLocaleString() }}
+                                        {{ formatCurrency(getFirstPaymentAmount) }}
                                     </p>
                                 </div>
                                 <div>
