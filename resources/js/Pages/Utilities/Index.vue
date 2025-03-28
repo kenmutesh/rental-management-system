@@ -2,10 +2,18 @@
 import { ref } from 'vue';
 import { Head, useForm, usePage } from '@inertiajs/vue3';
 
-const { utilities: initialUtilities } = usePage().props; // Fetch initial utilities from props
-const utilities = ref(initialUtilities); // Make utilities reactive
+const { utilities: initialUtilities, flash } = usePage().props; // Get initial utilities and flash message
+const utilities = ref(initialUtilities);
 const isEditing = ref(false);
 const isSubmitting = ref(false);
+const showFlash = ref(flash ? true : false); // Control flash message visibility
+
+// Flash message timeout
+if (flash) {
+    setTimeout(() => {
+        showFlash.value = false;
+    }, 3000);
+}
 
 const form = useForm({
     id: null,
@@ -17,49 +25,73 @@ const form = useForm({
 
 const saveUtility = async () => {
     isSubmitting.value = true;
-    form.errors = {};
 
     try {
         if (isEditing.value) {
-            await form.put(route('utilities.update', form.id));
+            await form.put(route('utilities.update', form.id), {
+                preserveScroll: true,
+                onSuccess: () => {
+                    // Refresh utilities after successful update
+                    utilities.value = usePage().props.utilities;
+                    resetForm();
+                    showFlash.value = true;
+                    setTimeout(() => showFlash.value = false, 3000);
+                }
+            });
         } else {
-            await form.post(route('utilities.store'));
+            await form.post(route('utilities.store'), {
+                preserveScroll: true,
+                onSuccess: () => {
+                    // Refresh utilities after successful creation
+                    utilities.value = usePage().props.utilities;
+                    resetForm();
+                    showFlash.value = true;
+                    setTimeout(() => showFlash.value = false, 3000);
+                }
+            });
         }
-        utilities.value = usePage().props.utilities;
-        resetForm();
-    } catch (error) {
-        console.error(error);
-        form.errors = error.response.data.errors || {};
     } finally {
         isSubmitting.value = false;
     }
 };
 
-
 const resetForm = () => {
     form.reset();
-    isEditing.value = false; // Reset editing state
+    isEditing.value = false;
 };
 
 const editUtility = (utility) => {
     form.id = utility.id;
     form.name = utility.name;
-    form.status = utility.status ? true : false;
+    form.status = utility.status;
     form.fee_type = utility.fee_type;
     form.price = utility.price;
     isEditing.value = true;
 };
 
-const deleteUtility  = async (utility) => {
-    await form.post(route('utilities.delete', utility.id));
+const deleteUtility = async (utility) => {
+    if (confirm('Are you sure you want to delete this utility?')) {
+        await form.delete(route('utilities.delete', utility.id), {
+            preserveScroll: true,
+            onSuccess: () => {
+                utilities.value = usePage().props.utilities;
+                showFlash.value = true;
+                setTimeout(() => showFlash.value = false, 3000);
+            }
+        });
+    }
 };
 </script>
-
 <template>
     <Head title="Utilities" />
     <app-layout>
         <div class="max-w-6xl mx-auto py-12">
-            <div class="bg-white shadow-md rounded-lg p-6 dark:bg-gray-800">
+            <div v-if="showFlash && $page.props.flash" class="mb-4">
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                <span class="block sm:inline">{{ $page.props.flash.message }}</span>
+            </div>
+            </div>
+        <div class="bg-white shadow-md rounded-lg p-6 dark:bg-gray-800">
                 <h1 class="text-2xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Manage Utilities</h1>
                 <form @submit.prevent="saveUtility">
                     <!-- Utility Name -->

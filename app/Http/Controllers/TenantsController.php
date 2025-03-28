@@ -12,13 +12,14 @@ use App\Models\TenantAccounts;
 use App\Models\Tenants;
 use App\Models\Units;
 use App\SmsTenant;
+use App\Traits\InvoicingTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class TenantsController extends Controller
 {
-    use SmsTenant;
+    use SmsTenant, InvoicingTrait;
     /**
      * Display a listing of the resource.
      */
@@ -83,131 +84,86 @@ class TenantsController extends Controller
      */
     public function store(TenantRequest $request)
     {
-        DB::beginTransaction();
+//        DB::beginTransaction();
 
-        try {
-            // Calculate discounted rent if applicable
-            $rentAmount = $request->rentAmount;
-            $discountedRent = $rentAmount;
+//        try {
+            // Create tenant
+            $tenant = Tenants::create($this->prepareTenantData($request));
 
-            if ($request->applyDiscount) {
-                if ($request->discountType === 'percentage') {
-                    $discountedRent = $rentAmount * (1 - ($request->discountValue / 100));
-                } else {
-                    $discountedRent = max(0, $rentAmount - $request->discountValue);
-                }
-            }
 
-            // Tenant creation logic
-            $tenant = Tenants::create([
-                'first_name' => $request->firstName,
-                'last_name' => $request->lastName,
-                'email' => $request->email,
-                'phone' => $request->phone,
-                'id_number' => $request->id_number,
-                'kra_pin' => $request->kraPin,
-                'employer_name' => $request->employerName,
-                'job_title' => $request->jobTitle,
-                'monthly_income' => $request->monthlyIncome,
-                'property_id' => $request->property_id,
-                'unit_id' => $request->unit_id,
-                'lease_start_date' => $request->lease_start_date,
-                'rent_amount' => $discountedRent,
-                'security_deposit' => $request->securityDeposit,
-                'advance_rent' => $request->rentAmount, // Advance rent is same as original rent amount
-                'payment_method' => $request->paymentMethod,
-                'apply_discount' => $request->applyDiscount,
-                'discount_type' => $request->applyDiscount ? $request->discountType : null,
-                'discount_value' => $request->applyDiscount ? $request->discountValue : null,
-                'emergency_contact_name' => $request->emergency_contact_name,
-                'emergency_contact_phone' => $request->emergency_contact_phone,
-                'notes' => $request->notes,
-                'account_number' => $request->accountNumber ?? $request->phone,
-                'address' => $request->address,
-                'gender' => $request->gender,
-                'date_of_birth' => $request->date_of_birth,
-                'marital_status' => $request->marital_status,
-                'city' => $request->city,
-                'county' => $request->county,
-                'postal_code' => $request->postal_code,
-                'emergency_contact_relationship' => $request->emergency_contact_relationship,
-            ]);
+            $unit = Units::findOrFail($request->unit_id);
+            $unit->update(['occupied_by' => $tenant->id]);
+dd($unit);
+            // Setup tenant account
+            $this->setupTenantAccount($tenant, $request);
 
-            $unit = Units::find($request->unit_id);
+            // Create initial invoices
+            $this->createInitialInvoices($tenant);
 
-            if (!$unit) {
-                DB::rollBack();
-                return redirect()->route('tenants.create')->with([
-                    'message' => 'Unit not found',
-                    'type' => 'error',
-                ]);
-            }
-
-            $unit->occupied_by = $tenant->id;
-            $unit->save();
-
-            // Handle tenant account
-            $tenant_account = TenantAccounts::where('account_number', $request->accountNumber ?? $request->phone)->first();
-
-            if ($tenant_account) {
-                $tenant_account->balance = 0;
-                $tenant_account->save();
-            } else {
-                TenantAccounts::create([
-                    'account_number' => $request->accountNumber ?? $request->phone,
-                    'balance' => 0,
-                ]);
-            }
-
-            // Handle file uploads
-            if ($request->hasFile('idCopy')) {
-                $tenant->addMedia($request->file('idCopy'))
-                    ->toMediaCollection('id_copy');
-            }
-
-            if ($request->hasFile('kraPinCopy')) {
-                $tenant->addMedia($request->file('kraPinCopy'))
-                    ->toMediaCollection('kra_pin_copy');
-            }
-
-            if ($request->hasFile('employmentLetter')) {
-                $tenant->addMedia($request->file('employmentLetter'))
-                    ->toMediaCollection('employment_letter');
-            }
-
-            if ($request->hasFile('payslips')) {
-                foreach ($request->file('payslips') as $file) {
-                    $tenant->addMedia($file)
-                        ->toMediaCollection('payslips');
-                }
-            }
-
-            if ($request->hasFile('bankStatements')) {
-                foreach ($request->file('bankStatements') as $file) {
-                    $tenant->addMedia($file)
-                        ->toMediaCollection('bank_statements');
-                }
-            }
-
-            if ($request->hasFile('references')) {
-                foreach ($request->file('references') as $file) {
-                    $tenant->addMedia($file)
-                        ->toMediaCollection('references');
-                }
-            }
+            // Handle documents
+            $this->handleDocuments($tenant, $request);
 
             DB::commit();
 
-            return redirect()->route('tenants.index')->with([
-                'message' => 'Tenant created successfully',
-                'type' => 'success',
-            ]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return redirect()->route('tenants.create')->with([
-                'message' => 'Error creating tenant: ' . $e->getMessage(),
-                'type' => 'error',
-            ]);
+            return redirect()->route('tenants.index')
+                ->with('success', 'Tenant created with invoices generated');
+
+//        } catch (\Exception $e) {
+//            DB::rollBack();
+//            return back()->with('error', 'Error: ' . $e->getMessage());
+//        }
+    }
+
+    protected function prepareTenantData(TenantRequest $request): array
+    {
+        $data = $request->validated();
+        $data['rent_amount'] = $this->calculateDiscountedRent($request);
+        $data['account_number'] = $request->accountNumber ?? $request->phone;
+        return $data;
+    }
+
+    protected function calculateDiscountedRent(TenantRequest $request): float
+    {
+        $rent = $request->rentAmount;
+
+        if (!$request->applyDiscount) {
+            return $rent;
+        }
+
+        return $request->discountType === 'percentage'
+            ? $rent * (1 - ($request->discountValue / 100))
+            : max(0, $rent - $request->discountValue);
+    }
+
+    protected function setupTenantAccount(Tenants $tenant, TenantRequest $request): void
+    {
+        TenantAccounts::updateOrCreate(
+            ['account_number' => $tenant->account_number],
+            ['balance' => 0]
+        );
+    }
+
+    protected function handleDocuments(Tenant $tenant, TenantRequest $request): void
+    {
+        $collections = [
+            'idCopy' => 'id_copy',
+            'kraPinCopy' => 'kra_pin_copy',
+            'employmentLetter' => 'employment_letter',
+            'payslips' => 'payslips',
+            'bankStatements' => 'bank_statements',
+            'references' => 'references',
+        ];
+
+        foreach ($collections as $field => $collection) {
+            if ($request->hasFile($field)) {
+                $files = is_array($request->file($field))
+                    ? $request->file($field)
+                    : [$request->file($field)];
+
+                foreach ($files as $file) {
+                    $tenant->addMedia($file)->toMediaCollection($collection);
+                }
+            }
         }
     }
     /**

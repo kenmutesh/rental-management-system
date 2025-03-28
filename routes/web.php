@@ -52,7 +52,7 @@ Route::middleware('auth')->group(function () {
     Route::get('utilities/create', [UtilitiesController::class, 'create'])->name('utilities.create');
     Route::post('utilities', [UtilitiesController::class, 'store'])->name('utilities.store');
     Route::put('utilities/{utility}', [UtilitiesController::class, 'update'])->name('utilities.update');
-    Route::post('utilities/{utility}', [UtilitiesController::class, 'delete'])->name('utilities.delete');
+    Route::delete('utilities/{utility}', [UtilitiesController::class, 'delete'])->name('utilities.delete');
 
 
     Route::get('tenants', [TenantsController::class, 'index'])->name('tenants.index');

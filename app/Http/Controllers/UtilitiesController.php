@@ -42,11 +42,9 @@ class UtilitiesController extends Controller
             'status' => $request->input('status', false),
         ]);
 
-        $utilities = Utilities::all(); // Get updated utilities
-
-        return Inertia::render('Utilities/Index', [
-            'utilities' => UtilityResource::collection($utilities),
-        ])->with('success', 'Utility created successfully');
+        return redirect()->route('utilities.index')
+            ->with('message', 'Utility has been created successfully')
+            ->with('utilities', Utilities::all());
     }
 
     /**
